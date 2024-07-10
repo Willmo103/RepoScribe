@@ -46,7 +46,7 @@ namespace CodeFlattener.Tests
         [Theory]
         [InlineData("test.cs", "csharp")]
         [InlineData("test.js", "javascript")]
-        [InlineData("test.txt", "")]
+        [InlineData("test.txt", "plaintext")]
         public void GetLanguageIdentifier_ReturnsCorrectIdentifier(string fileName, string expectedIdentifier)
         {
             // Act
@@ -81,6 +81,22 @@ namespace CodeFlattener.Tests
             // Act & Assert
             var exception = Assert.Throws<DirectoryNotFoundException>(() => Program.Main(args));
             Assert.Contains("Directory not found: invalid_path", exception.Message);
+        }
+
+        [Fact]
+        public void Main_WithFileExtensions_OnlyFlattensSpecifiedFiles()
+        {
+            // Arrange
+            string[] args = new string[] { testDir, outputFile, ".cs" };
+
+            // Act
+            Program.Main(args);
+
+            // Assert
+            Assert.True(File.Exists(outputFile));
+            string content = File.ReadAllText(outputFile);
+            Assert.Contains("# test.cs", content);
+            Assert.DoesNotContain("# subfolder/test.js", content);
         }
     }
 }
