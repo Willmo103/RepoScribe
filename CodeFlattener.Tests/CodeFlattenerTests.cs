@@ -96,5 +96,27 @@
             Assert.Contains("# test.cs", content);
             Assert.DoesNotContain("# subfolder/test.js", content);
         }
+        [Fact]
+        public void FlattenCodebase_WithIgnoredPaths_DoesNotIncludeIgnoredFiles()
+        {
+            // Arrange
+            var flattener = new CodeFlattener();
+            string[] ignoredPaths = { "ignored_folder", "ignored_file.txt" };
+
+            // Create test files including ignored ones
+            File.WriteAllText(Path.Combine(testDir, "test.cs"), "Console.WriteLine(\"Hello, World!\");");
+            File.WriteAllText(Path.Combine(testDir, "ignored_file.txt"), "This should be ignored");
+            Directory.CreateDirectory(Path.Combine(testDir, "ignored_folder"));
+            File.WriteAllText(Path.Combine(testDir, "ignored_folder", "ignored.cs"), "This should be ignored");
+
+            // Act
+            flattener.FlattenCodebase(testDir, outputFile, null, ignoredPaths);
+
+            // Assert
+            string content = File.ReadAllText(outputFile);
+            Assert.Contains("# test.cs", content);
+            Assert.DoesNotContain("ignored_file.txt", content);
+            Assert.DoesNotContain("ignored_folder", content);
+        }
     }
 }
