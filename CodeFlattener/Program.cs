@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-namespace CodeFlattener
+﻿namespace CodeFlattener
 {
     public class Program
     {
@@ -11,6 +7,11 @@ namespace CodeFlattener
             ".md", ".txt", ".csproj", ".csv", ".sql", ".sh", ".bat", ".ps1", ".psm1", ".psd1",
             ".ps1xml", ".xaml", ".config", ".gitignore", ".editorconfig", ".dockerignore",
             ".dockerfile", ".sln"
+        };
+
+        public static readonly string[] DefaultIgnoredPaths = {
+            ".git", "node_modules", "bin", "obj",
+            ".env", "package-lock.json", ".vs", ".vscode", ".idea"
         };
 
         public static void Main(string[] args)
@@ -33,12 +34,9 @@ namespace CodeFlattener
             string rootFolder = args[0];
             string outputFile = args[1];
             string[] fileExtensions = args.Length > 2 ? args.Skip(2).ToArray() : DefaultExtensions;
+            string[] ignoredPaths = DefaultIgnoredPaths;
 
-            ValidateAndFlattenCodebase(rootFolder, outputFile, fileExtensions);
-        }
-        private static string ValidateDirectoryExists(string path)
-        {
-            return Directory.Exists(path) ? path : throw new DirectoryNotFoundException($"Directory not found: {path}");
+            ValidateAndFlattenCodebase(rootFolder, outputFile, fileExtensions, ignoredPaths);
         }
 
         private static void ProcessInteractiveMode()
@@ -48,14 +46,59 @@ namespace CodeFlattener
                                                   input => string.IsNullOrWhiteSpace(input) ? $"{rootFolder}_Code.md" : input);
 
             string[] fileExtensions = PromptForFileExtensions();
+            string[] ignoredPaths = PromptForIgnoredPaths();
 
-            ValidateAndFlattenCodebase(rootFolder, outputFile, fileExtensions);
+            ValidateAndFlattenCodebase(rootFolder, outputFile, fileExtensions, ignoredPaths);
+        }
+
+        private static string[] PromptForIgnoredPaths()
+        {
+            string useCustomIgnores = GetValidatedInput("Would you like to specify custom ignored paths? (y/n)",
+                input =>
+                {
+                    string loweredInput = input.ToLower();
+                    return loweredInput is "y" or "n" or "" ? loweredInput : throw new ArgumentException("Please enter 'y', 'n', or press Enter");
+                });
+
+            return useCustomIgnores == "y" ? GetUserSpecifiedIgnoredPaths() : DefaultIgnoredPaths;
+        }
+
+        private static string[] GetUserSpecifiedIgnoredPaths()
+        {
+            return GetValidatedInput("Enter the ignored paths separated by commas:",
+                input =>
+                {
+                    if (string.IsNullOrWhiteSpace(input))
+                    {
+                        Console.WriteLine("No ignored paths entered. Using default ignored paths.");
+                        return DefaultIgnoredPaths;
+                    }
+                    else
+                    {
+                        return input.Split(',').Select(p => p.Trim()).ToArray();
+                    }
+                });
+        }
+
+        private static void ValidateAndFlattenCodebase(string rootFolder, string outputFile, string[] fileExtensions, string[] ignoredPaths)
+        {
+            try
+            {
+                ValidateDirectoryExists(rootFolder);
+                CodeFlattener flattener = new CodeFlattener();
+                flattener.FlattenCodebase(rootFolder, outputFile, fileExtensions, ignoredPaths);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
 
         private static string[] PromptForFileExtensions()
         {
             string useExtensions = GetValidatedInput("Would you like to filter by file extensions? (y/n)",
-                input => {
+                input =>
+                {
                     string loweredInput = input.ToLower();
                     return loweredInput is "y" or "n" or "" ? loweredInput : throw new ArgumentException("Please enter 'y', 'n', or press Enter");
                 });
@@ -79,7 +122,14 @@ namespace CodeFlattener
                 }
             }
         }
-
+        private static string ValidateDirectoryExists(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                throw new DirectoryNotFoundException($"Directory not found: {path}");
+            }
+            return path;
+        }
         private static string[] GetUserSpecifiedExtensions()
         {
             return GetValidatedInput("Enter the file extensions separated by commas (e.g. `cs,js,ts`):",
@@ -97,19 +147,6 @@ namespace CodeFlattener
                             .ToArray();
                     }
                 });
-        }
-        private static void ValidateAndFlattenCodebase(string rootFolder, string outputFile, string[] fileExtensions)
-        {
-            try
-            {
-                ValidateDirectoryExists(rootFolder);
-                CodeFlattener flattener = new CodeFlattener();
-                flattener.FlattenCodebase(rootFolder, outputFile, fileExtensions);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
         }
     }
 }
