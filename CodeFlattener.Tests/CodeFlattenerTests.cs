@@ -1,6 +1,4 @@
-﻿using Xunit;
-
-namespace CodeFlattener.Tests
+﻿namespace CodeFlattener.Tests
 {
     public class CodeFlattenerTests : IDisposable
     {
