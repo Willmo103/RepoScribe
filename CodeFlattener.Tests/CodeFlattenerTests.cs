@@ -70,7 +70,7 @@
             Assert.Contains("# subfolder/test.js", content);
         }
 
-        [Fact]
+        [Fact(Timeout = 10000)] // 10 second timeout
         public void Main_WithInvalidArguments_DoesNotFlattenCodebase()
         {
             // Arrange

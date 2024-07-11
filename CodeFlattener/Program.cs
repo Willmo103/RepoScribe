@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-namespace CodeFlattener
+﻿namespace CodeFlattener
 {
     public class Program
     {
@@ -15,7 +11,7 @@ namespace CodeFlattener
 
         public static readonly string[] DefaultIgnoredPaths = {
             ".git", "node_modules", "bin", "obj",
-            ".env", "package-lock.json", ".vs", ".vscode"
+            ".env", "package-lock.json", ".vs", ".vscode", ".idea"
         };
 
         public static void Main(string[] args)
@@ -58,7 +54,8 @@ namespace CodeFlattener
         private static string[] PromptForIgnoredPaths()
         {
             string useCustomIgnores = GetValidatedInput("Would you like to specify custom ignored paths? (y/n)",
-                input => {
+                input =>
+                {
                     string loweredInput = input.ToLower();
                     return loweredInput is "y" or "n" or "" ? loweredInput : throw new ArgumentException("Please enter 'y', 'n', or press Enter");
                 });
@@ -69,7 +66,8 @@ namespace CodeFlattener
         private static string[] GetUserSpecifiedIgnoredPaths()
         {
             return GetValidatedInput("Enter the ignored paths separated by commas:",
-                input => {
+                input =>
+                {
                     if (string.IsNullOrWhiteSpace(input))
                     {
                         Console.WriteLine("No ignored paths entered. Using default ignored paths.");
