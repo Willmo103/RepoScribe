@@ -53,11 +53,11 @@
 
         private static string[] PromptForIgnoredPaths()
         {
-            string useCustomIgnores = GetValidatedInput("Would you like to specify custom ignored paths? (y/n)",
+            string useCustomIgnores = GetValidatedInput($"Would you like to specify custom ignored paths? (y/n)\nDefault: `{DefaultIgnoredPaths.ToString()}`\n>",
                 input =>
                 {
                     string loweredInput = input.ToLower();
-                    return loweredInput is "y" or "n" or "" ? loweredInput : throw new ArgumentException("Please enter 'y', 'n', or press Enter");
+                    return loweredInput is "y" or "n" or "" ? loweredInput : throw new ArgumentException("Please enter 'y', 'n', or press Enter\n>");
                 });
 
             return useCustomIgnores == "y" ? GetUserSpecifiedIgnoredPaths() : DefaultIgnoredPaths;

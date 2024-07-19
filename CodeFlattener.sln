@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlattener", "CodeFlatte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeFlattener.Tests", "CodeFlattener.Tests\CodeFlattener.Tests.csproj", "{416130D3-3698-4E16-900E-8768A272CDDE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModelLib", "DataModelLib\DataModelLib.csproj", "{537E6A4F-2710-4A6E-B858-2E85657DB325}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{416130D3-3698-4E16-900E-8768A272CDDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{416130D3-3698-4E16-900E-8768A272CDDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{416130D3-3698-4E16-900E-8768A272CDDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{537E6A4F-2710-4A6E-B858-2E85657DB325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{537E6A4F-2710-4A6E-B858-2E85657DB325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{537E6A4F-2710-4A6E-B858-2E85657DB325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{537E6A4F-2710-4A6E-B858-2E85657DB325}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
