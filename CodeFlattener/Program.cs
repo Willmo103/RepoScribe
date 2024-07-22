@@ -9,6 +9,12 @@ namespace CodeFlattener
     {
         public static void Main(string[] args)
         {
+            var config = BuildConfiguration();
+            RunCodeFlattener(args, config);
+        }
+
+        public static void RunCodeFlattener(string[] args, IConfiguration config)
+        {
             try
             {
                 if (args.Length < 2 || args.Length > 3)
@@ -21,23 +27,12 @@ namespace CodeFlattener
                 string outputFile = args[1];
                 bool compress = args.Length == 3 && (args[2] == "-c" || args[2] == "-Compress");
 
-                string configPath = GetConfigPath();
-                if (string.IsNullOrEmpty(configPath))
-                {
-                    Console.WriteLine("Error: Unable to locate appsettings.json");
-                    return;
-                }
-
-                var config = new ConfigurationBuilder()
-                    .AddJsonFile(configPath, optional: false, reloadOnChange: true)
-                    .Build();
-
                 string[] acceptedFileTypes = config.GetSection("AcceptedFileTypes").Value?.Split(',') ?? Array.Empty<string>();
                 string[] ignoredPaths = config.GetSection("IgnoredPaths").Value?.Split(',') ?? Array.Empty<string>();
 
                 if (acceptedFileTypes.Length == 0 || ignoredPaths.Length == 0)
                 {
-                    Console.WriteLine("Error: Configuration sections are missing, empty, or improperly formatted.");
+                    Console.WriteLine("Error: Configuration sections are missing or empty.");
                     return;
                 }
 
@@ -51,6 +46,19 @@ namespace CodeFlattener
                 Console.WriteLine($"An unhandled error occurred: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
             }
+        }
+
+        private static IConfiguration BuildConfiguration()
+        {
+            string configPath = GetConfigPath();
+            if (string.IsNullOrEmpty(configPath))
+            {
+                throw new FileNotFoundException("Unable to locate appsettings.json");
+            }
+
+            return new ConfigurationBuilder()
+                .AddJsonFile(configPath, optional: false, reloadOnChange: true)
+                .Build();
         }
 
         private static string GetConfigPath()
@@ -74,7 +82,7 @@ namespace CodeFlattener
 
                 string absoluteOutputFile = Path.IsPathRooted(outputFile) ? outputFile : Path.Combine(Directory.GetCurrentDirectory(), outputFile);
 
-                CodeFlattener flattener = new CodeFlattener();
+                Flattener flattener = new Flattener();
                 flattener.FlattenCodebase(absoluteRootFolder, absoluteOutputFile, acceptedFileTypes, ignoredPaths, compress);
 
                 Console.WriteLine($"Output written to: {absoluteOutputFile}");
