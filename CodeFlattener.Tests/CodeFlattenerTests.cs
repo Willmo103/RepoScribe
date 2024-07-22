@@ -26,7 +26,7 @@ namespace CodeFlattener.Tests
             File.WriteAllText(Path.Combine(testDir, ".git", "config"), "# Git config file");
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Directory.Delete(testDir, true);
         }
@@ -35,12 +35,11 @@ namespace CodeFlattener.Tests
         public void FlattenCodebase_CreatesCorrectMarkdownContent()
         {
             // Arrange
-            var flattener = new Flattener();
-            string[] acceptedFileTypes = new[] { ".cs", ".js" };
-            string[] ignoredPaths = new[] { ".git" };
+            string[] acceptedFileTypes = [".cs", ".js"];
+            string[] ignoredPaths = [".git"];
 
             // Act
-            flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, false);
+            Flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, false);
 
             // Assert
             string content = File.ReadAllText(outputFile);
@@ -57,12 +56,11 @@ namespace CodeFlattener.Tests
         public void FlattenCodebase_WithCompression_CompressesContent()
         {
             // Arrange
-            var flattener = new Flattener();
-            string[] acceptedFileTypes = new[] { ".cs" };
-            string[] ignoredPaths = Array.Empty<string>();
+            string[] acceptedFileTypes = [".cs"];
+            string[] ignoredPaths = [];
 
             // Act
-            flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, true);
+            Flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, true);
 
             // Assert
             string content = File.ReadAllText(outputFile);
@@ -74,12 +72,11 @@ namespace CodeFlattener.Tests
         public void FlattenCodebase_WithIgnoredPaths_ExcludesIgnoredFiles()
         {
             // Arrange
-            var flattener = new Flattener();
-            string[] acceptedFileTypes = new[] { ".cs", ".js" };
-            string[] ignoredPaths = new[] { "subfolder" };
+            string[] acceptedFileTypes = [".cs", ".js"];
+            string[] ignoredPaths = ["subfolder"];
 
             // Act
-            flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, false);
+            Flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, false);
 
             // Assert
             string content = File.ReadAllText(outputFile);
@@ -105,7 +102,7 @@ namespace CodeFlattener.Tests
         public void RunCodeFlattener_WithValidArguments_FlattensCodabase()
         {
             // Arrange
-            string[] args = new string[] { testDir, outputFile };
+            string[] args = [testDir, outputFile];
             var mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(c => c.GetSection("AcceptedFileTypes").Value).Returns(".cs,.js");
             mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
@@ -125,7 +122,7 @@ namespace CodeFlattener.Tests
         public void RunCodeFlattener_WithInvalidArguments_DoesNotFlattenCodebase()
         {
             // Arrange
-            string[] args = new string[] { "invalid_path", outputFile };
+            string[] args = ["invalid_path", outputFile];
             var mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(c => c.GetSection("AcceptedFileTypes").Value).Returns(".cs,.js");
             mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
@@ -139,7 +136,7 @@ namespace CodeFlattener.Tests
         public void RunCodeFlattener_WithCompressionFlag_CompressesOutput()
         {
             // Arrange
-            string[] args = new string[] { testDir, outputFile, "-c" };
+            string[] args = [testDir, outputFile, "-c"];
             var mockConfiguration = new Mock<IConfiguration>();
             mockConfiguration.Setup(c => c.GetSection("AcceptedFileTypes").Value).Returns(".cs");
             mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");

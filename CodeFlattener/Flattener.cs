@@ -3,16 +3,21 @@ using System.Text.RegularExpressions;
 
 namespace CodeFlattener
 {
-    public class Flattener
+    public partial class Flattener
     {
-        public void FlattenCodebase(string rootFolder, string outputFile, string[] acceptedFileTypes, string[] ignoredPaths, bool compress)
+        public static void FlattenCodebase(
+            string rootFolder,
+            string outputFile,
+            string[] acceptedFileTypes,
+            string[] ignoredPaths,
+            bool compress)
         {
             if (!Directory.Exists(rootFolder))
             {
                 throw new DirectoryNotFoundException($"Directory not found: {rootFolder}");
             }
 
-            StringBuilder markdownContent = new StringBuilder();
+            StringBuilder markdownContent = new();
 
             var files = GetFilteredFiles(rootFolder, acceptedFileTypes, ignoredPaths);
 
@@ -24,7 +29,7 @@ namespace CodeFlattener
             File.WriteAllText(outputFile, markdownContent.ToString());
         }
 
-        private IEnumerable<string> GetFilteredFiles(string rootFolder, string[] acceptedFileTypes, string[] ignoredPaths)
+        private static IEnumerable<string> GetFilteredFiles(string rootFolder, string[] acceptedFileTypes, string[] ignoredPaths)
         {
             return Directory.EnumerateFiles(rootFolder, "*.*", SearchOption.AllDirectories)
                 .Where(file =>
@@ -35,7 +40,7 @@ namespace CodeFlattener
                 .Where(file => acceptedFileTypes.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase));
         }
 
-        private bool IsPathIgnored(string path, string[] ignoredPaths)
+        private static bool IsPathIgnored(string path, string[] ignoredPaths)
         {
             return ignoredPaths.Any(ignoredPath =>
                 path.StartsWith(ignoredPath, StringComparison.OrdinalIgnoreCase) ||
@@ -43,7 +48,11 @@ namespace CodeFlattener
                     segment.Equals(ignoredPath, StringComparison.OrdinalIgnoreCase)));
         }
 
-        private void AppendFileContent(StringBuilder markdownContent, string rootFolder, string filePath, bool compress)
+        private static void AppendFileContent(
+            StringBuilder markdownContent,
+            string rootFolder,
+            string filePath,
+            bool compress)
         {
             string relativePath = Path.GetRelativePath(rootFolder, filePath);
             markdownContent.AppendLine($"# {relativePath.Replace('\\', '/')}");
@@ -62,15 +71,24 @@ namespace CodeFlattener
             markdownContent.AppendLine();
         }
 
-        private string CompressContent(string content)
+        private static string CompressContent(string content)
         {
             // Remove all whitespace except for single spaces between words
-            content = Regex.Replace(content, @"\s+", " ");
+            content = ExtraSpaces().Replace(content, " ");
+            // remove all whitespaces except for single spaces between words, agiain
+            content = ExtraSpaces().Replace(content, " ");
             // Remove spaces after certain characters
-            content = Regex.Replace(content, @"(\(|\[|{) ", "$1");
+            content = SpacesAfterSyntax().Replace(content, "$1");
             // Remove spaces before certain characters
-            content = Regex.Replace(content, @" (\)|\]|}|,|;)", "$1");
+            content = ClosingCodeSpaces().Replace(content, "$1");
             return content.Trim();
         }
+
+        [GeneratedRegex(@"\s+")] // This matches one or more whitespace characters (spaces, tabs, newlines). It will be replaced with a single space.
+        private static partial Regex ExtraSpaces();
+        [GeneratedRegex(@"(\(|\[|{) ")]
+        private static partial Regex SpacesAfterSyntax();
+        [GeneratedRegex(@" (\)|\]|}|,|;)")]
+        private static partial Regex ClosingCodeSpaces();
     }
 }

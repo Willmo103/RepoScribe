@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -27,20 +28,25 @@ namespace CodeFlattener
                 string outputFile = args[1];
                 bool compress = args.Length == 3 && (args[2] == "-c" || args[2] == "-Compress");
 
-                string[] acceptedFileTypes = config.GetSection("AcceptedFileTypes").Value?.Split(',') ?? Array.Empty<string>();
-                string[] ignoredPaths = config.GetSection("IgnoredPaths").Value?.Split(',') ?? Array.Empty<string>();
+                // Print the args for debugging
+                Console.WriteLine($"Root folder: {rootFolder], Output file: {outputFile}, Compress: {compress}");
 
-                if (acceptedFileTypes.Length == 0 || ignoredPaths.Length == 0)
-                {
-                    Console.WriteLine("Error: Configuration sections are missing or empty.");
-                    return;
-                }
+                // Get the Dictionary section from the configuration: "AllowedFiles" and "Ignored"
 
-                ValidateAndFlattenCodebase(rootFolder, outputFile, acceptedFileTypes, ignoredPaths, compress);
+            //    string[] acceptedFileTypes = config.GetSection("AcceptedFileTypes").Value?.Split(',') ?? [];
+            //    string[] ignoredPaths = config.GetSection("IgnoredPaths").Value?.Split(',') ?? [];
 
-                Console.WriteLine("Process completed. Press any key to exit...");
-                Console.ReadKey();
-            }
+            //    if (acceptedFileTypes.Length == 0 || ignoredPaths.Length == 0)
+            //    {
+            //        Console.WriteLine("Error: Configuration sections are missing or empty.");
+            //        return;
+            //    }
+
+            //    ValidateAndFlattenCodebase(rootFolder, outputFile, acceptedFileTypes, ignoredPaths, compress);
+
+            //    Console.WriteLine("Process completed. Press any key to exit...");
+            //    Console.ReadKey();
+            //}
             catch (Exception ex)
             {
                 Console.WriteLine($"An unhandled error occurred: {ex.Message}");
@@ -63,14 +69,21 @@ namespace CodeFlattener
 
         private static string GetConfigPath()
         {
-            string[] possiblePaths = new string[]
-            {
+            string[] possiblePaths =
+            [
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"),
                 Path.Combine(Environment.CurrentDirectory, "appsettings.json"),
                 "appsettings.json"
-            };
+            ];
 
-            return possiblePaths.FirstOrDefault(File.Exists);
+            if (possiblePaths.Any(File.Exists) && possiblePaths.First(File.Exists) != null)
+            {
+                return possiblePaths.FirstOrDefault(File.Exists);
+            }
+            else
+            {
+                throw new FileNotFoundException("Unable to locate appsettings.json");
+            }
         }
 
         private static void ValidateAndFlattenCodebase(string rootFolder, string outputFile, string[] acceptedFileTypes, string[] ignoredPaths, bool compress)
@@ -82,8 +95,8 @@ namespace CodeFlattener
 
                 string absoluteOutputFile = Path.IsPathRooted(outputFile) ? outputFile : Path.Combine(Directory.GetCurrentDirectory(), outputFile);
 
-                Flattener flattener = new Flattener();
-                flattener.FlattenCodebase(absoluteRootFolder, absoluteOutputFile, acceptedFileTypes, ignoredPaths, compress);
+                Flattener flattener = new();
+                Flattener.FlattenCodebase(absoluteRootFolder, absoluteOutputFile, acceptedFileTypes, ignoredPaths, compress);
 
                 Console.WriteLine($"Output written to: {absoluteOutputFile}");
             }
