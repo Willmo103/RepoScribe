@@ -1,4 +1,11 @@
-﻿namespace CodeFlattener.Tests
+﻿using System;
+using System.IO;
+using System.Text;
+using Xunit;
+using Moq;
+using Microsoft.Extensions.Configuration;
+
+namespace CodeFlattener.Tests
 {
     public class CodeFlattenerTests : IDisposable
     {
@@ -11,13 +18,15 @@
             Directory.CreateDirectory(testDir);
             outputFile = Path.Combine(testDir, "output.md");
 
-            // Create test files
+            // Create test files and directories
             Directory.CreateDirectory(Path.Combine(testDir, "subfolder"));
+            Directory.CreateDirectory(Path.Combine(testDir, ".git"));
             File.WriteAllText(Path.Combine(testDir, "test.cs"), "Console.WriteLine(\"Hello, World!\");");
             File.WriteAllText(Path.Combine(testDir, "subfolder", "test.js"), "console.log(\"Hello, World!\");");
+            File.WriteAllText(Path.Combine(testDir, ".git", "config"), "# Git config file");
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Directory.Delete(testDir, true);
         }
@@ -26,10 +35,11 @@
         public void FlattenCodebase_CreatesCorrectMarkdownContent()
         {
             // Arrange
-            var flattener = new CodeFlattener();
+            string[] acceptedFileTypes = [".cs", ".js"];
+            string[] ignoredPaths = [".git"];
 
             // Act
-            flattener.FlattenCodebase(testDir, outputFile);
+            Flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, false);
 
             // Assert
             string content = File.ReadAllText(outputFile);
@@ -39,12 +49,46 @@
             Assert.Contains("# subfolder/test.js", content);
             Assert.Contains("```javascript", content);
             Assert.Contains("console.log(\"Hello, World!\");", content);
+            Assert.DoesNotContain("# .git/config", content);
+        }
+
+        [Fact]
+        public void FlattenCodebase_WithCompression_CompressesContent()
+        {
+            // Arrange
+            string[] acceptedFileTypes = [".cs"];
+            string[] ignoredPaths = [];
+
+            // Act
+            Flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, true);
+
+            // Assert
+            string content = File.ReadAllText(outputFile);
+            Assert.Contains("Console.WriteLine(\"Hello,World!\");", content);
+            Assert.DoesNotContain("Console.WriteLine(\"Hello, World!\");", content);
+        }
+
+        [Fact]
+        public void FlattenCodebase_WithIgnoredPaths_ExcludesIgnoredFiles()
+        {
+            // Arrange
+            string[] acceptedFileTypes = [".cs", ".js"];
+            string[] ignoredPaths = ["subfolder"];
+
+            // Act
+            Flattener.FlattenCodebase(testDir, outputFile, acceptedFileTypes, ignoredPaths, false);
+
+            // Assert
+            string content = File.ReadAllText(outputFile);
+            Assert.Contains("# test.cs", content);
+            Assert.DoesNotContain("# subfolder/test.js", content);
         }
 
         [Theory]
         [InlineData("test.cs", "csharp")]
         [InlineData("test.js", "javascript")]
         [InlineData("test.txt", "plaintext")]
+        [InlineData("unknown.xyz", "")]
         public void GetLanguageIdentifier_ReturnsCorrectIdentifier(string fileName, string expectedIdentifier)
         {
             // Act
@@ -55,68 +99,56 @@
         }
 
         [Fact]
-        public void Main_WithValidArguments_FlattensCodabase()
+        public void RunCodeFlattener_WithValidArguments_FlattensCodabase()
         {
             // Arrange
-            string[] args = new string[] { testDir, outputFile };
+            string[] args = [testDir, outputFile];
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(c => c.GetSection("AcceptedFileTypes").Value).Returns(".cs,.js");
+            mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
 
             // Act
-            Program.Main(args);
+            Program.RunCodeFlattener(args, mockConfiguration.Object);
 
             // Assert
             Assert.True(File.Exists(outputFile));
             string content = File.ReadAllText(outputFile);
             Assert.Contains("# test.cs", content);
             Assert.Contains("# subfolder/test.js", content);
+            Assert.DoesNotContain("# .git/config", content);
         }
 
-        [Fact(Timeout = 10000)] // 10 second timeout
-        public void Main_WithInvalidArguments_DoesNotFlattenCodebase()
+        [Fact]
+        public void RunCodeFlattener_WithInvalidArguments_DoesNotFlattenCodebase()
         {
             // Arrange
-            string[] args = new string[] { "invalid_path", outputFile };
+            string[] args = ["invalid_path", outputFile];
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(c => c.GetSection("AcceptedFileTypes").Value).Returns(".cs,.js");
+            mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
 
             // Act & Assert
-            var exception = Assert.Throws<DirectoryNotFoundException>(() => Program.Main(args));
+            var exception = Assert.Throws<DirectoryNotFoundException>(() => Program.RunCodeFlattener(args, mockConfiguration.Object));
             Assert.Contains("Directory not found: invalid_path", exception.Message);
         }
 
         [Fact]
-        public void Main_WithFileExtensions_OnlyFlattensSpecifiedFiles()
+        public void RunCodeFlattener_WithCompressionFlag_CompressesOutput()
         {
             // Arrange
-            string[] args = new string[] { testDir, outputFile, ".cs" };
+            string[] args = [testDir, outputFile, "-c"];
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(c => c.GetSection("AcceptedFileTypes").Value).Returns(".cs");
+            mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
 
             // Act
-            Program.Main(args);
+            Program.RunCodeFlattener(args, mockConfiguration.Object);
 
             // Assert
             Assert.True(File.Exists(outputFile));
             string content = File.ReadAllText(outputFile);
-            Assert.Contains("# test.cs", content);
-            Assert.DoesNotContain("# subfolder/test.js", content);
-        }
-        [Fact]
-        public void FlattenCodebase_WithIgnoredPaths_DoesNotIncludeIgnoredFiles()
-        {
-            // Arrange
-            var flattener = new CodeFlattener();
-            string[] ignoredPaths = { "ignored_folder", "ignored_file.txt" };
-
-            // Create test files including ignored ones
-            File.WriteAllText(Path.Combine(testDir, "test.cs"), "Console.WriteLine(\"Hello, World!\");");
-            File.WriteAllText(Path.Combine(testDir, "ignored_file.txt"), "This should be ignored");
-            Directory.CreateDirectory(Path.Combine(testDir, "ignored_folder"));
-            File.WriteAllText(Path.Combine(testDir, "ignored_folder", "ignored.cs"), "This should be ignored");
-
-            // Act
-            flattener.FlattenCodebase(testDir, outputFile, null, ignoredPaths);
-
-            // Assert
-            string content = File.ReadAllText(outputFile);
-            Assert.Contains("# test.cs", content);
-            Assert.DoesNotContain("ignored_file.txt", content);
-            Assert.DoesNotContain("ignored_folder", content);
+            Assert.Contains("Console.WriteLine(\"Hello,World!\");", content);
+            Assert.DoesNotContain("Console.WriteLine(\"Hello, World!\");", content);
         }
     }
 }

@@ -1,2 +1,2 @@
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo("CodeFlattener.Tests")]
+[assembly: InternalsVisibleTo("Flattener.Tests")]
