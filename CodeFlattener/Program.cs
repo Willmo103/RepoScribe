@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace CodeFlattener
 {
@@ -10,8 +12,16 @@ namespace CodeFlattener
     {
         public static void Main(string[] args)
         {
-            var config = BuildConfiguration();
-            RunCodeFlattener(args, config);
+            try
+            {
+                var config = BuildConfiguration();
+                RunCodeFlattener(args, config);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unhandled error occurred: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+            }
         }
 
         public static void RunCodeFlattener(string[] args, IConfiguration config)
@@ -28,25 +38,25 @@ namespace CodeFlattener
                 string outputFile = args[1];
                 bool compress = args.Length == 3 && (args[2] == "-c" || args[2] == "-Compress");
 
-                // Print the args for debugging
-                Console.WriteLine($"Root folder: {rootFolder], Output file: {outputFile}, Compress: {compress}");
+                Console.WriteLine($"Root folder: {rootFolder}, Output file: {outputFile}, Compress: {compress}");
 
-                // Get the Dictionary section from the configuration: "AllowedFiles" and "Ignored"
+                var allowedFiles = config.GetSection("AllowedFiles").GetChildren().ToDictionary(x => x.Key, x => x.Value);
+                var ignoredPaths = config.GetSection("Ignored").GetChildren().ToDictionary(x => x.Key, x => x.Value);
 
-            //    string[] acceptedFileTypes = config.GetSection("AcceptedFileTypes").Value?.Split(',') ?? [];
-            //    string[] ignoredPaths = config.GetSection("IgnoredPaths").Value?.Split(',') ?? [];
+                Console.WriteLine($"Accepted file types: {string.Join(", ", allowedFiles.Keys)}");
+                Console.WriteLine($"Ignored paths: {string.Join(", ", ignoredPaths.Keys)}");
 
-            //    if (acceptedFileTypes.Length == 0 || ignoredPaths.Length == 0)
-            //    {
-            //        Console.WriteLine("Error: Configuration sections are missing or empty.");
-            //        return;
-            //    }
+                if (allowedFiles.Count == 0 || ignoredPaths.Count == 0)
+                {
+                    Console.WriteLine("Error: Configuration sections are missing or empty.");
+                    return;
+                }
 
-            //    ValidateAndFlattenCodebase(rootFolder, outputFile, acceptedFileTypes, ignoredPaths, compress);
+                // Initialize the FileHelper with the allowed file types dictionary
+                FileHelper.Initialize(allowedFiles);
 
-            //    Console.WriteLine("Process completed. Press any key to exit...");
-            //    Console.ReadKey();
-            //}
+                ValidateAndFlattenCodebase(rootFolder, outputFile, allowedFiles, ignoredPaths, compress);
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"An unhandled error occurred: {ex.Message}");
@@ -70,39 +80,36 @@ namespace CodeFlattener
         private static string GetConfigPath()
         {
             string[] possiblePaths =
-            [
+            {
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"),
                 Path.Combine(Environment.CurrentDirectory, "appsettings.json"),
                 "appsettings.json"
-            ];
+            };
 
-            if (possiblePaths.Any(File.Exists) && possiblePaths.First(File.Exists) != null)
-            {
-                return possiblePaths.FirstOrDefault(File.Exists);
-            }
-            else
-            {
-                throw new FileNotFoundException("Unable to locate appsettings.json");
-            }
+            return possiblePaths.FirstOrDefault(File.Exists) ?? throw new FileNotFoundException("Unable to locate appsettings.json");
         }
 
-        private static void ValidateAndFlattenCodebase(string rootFolder, string outputFile, string[] acceptedFileTypes, string[] ignoredPaths, bool compress)
+        private static void ValidateAndFlattenCodebase(string rootFolder, string outputFile, Dictionary<string, string> acceptedFileTypes, Dictionary<string, string> ignoredPaths, bool compress)
         {
+            Console.WriteLine("Validating and flattening codebase...");
             try
             {
                 string absoluteRootFolder = Path.GetFullPath(rootFolder);
+                Console.WriteLine($"Root folder: {absoluteRootFolder}\nValidating Location...");
+
                 ValidateDirectoryExists(absoluteRootFolder);
 
                 string absoluteOutputFile = Path.IsPathRooted(outputFile) ? outputFile : Path.Combine(Directory.GetCurrentDirectory(), outputFile);
+                Console.WriteLine($"Output file: {absoluteOutputFile}");
 
                 Flattener flattener = new();
-                Flattener.FlattenCodebase(absoluteRootFolder, absoluteOutputFile, acceptedFileTypes, ignoredPaths, compress);
+                Flattener.FlattenCodebase(absoluteRootFolder, absoluteOutputFile, acceptedFileTypes.Keys.ToArray(), ignoredPaths.Keys.ToArray(), compress);
 
                 Console.WriteLine($"Output written to: {absoluteOutputFile}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Console.WriteLine($"An error occurred: {ex.Message} -- {ex.StackTrace}");
             }
         }
 
@@ -112,6 +119,7 @@ namespace CodeFlattener
             {
                 throw new DirectoryNotFoundException($"Directory not found: {path}");
             }
+            Console.WriteLine($"Directory exists: {path}");
         }
     }
 }

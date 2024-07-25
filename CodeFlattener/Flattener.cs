@@ -35,15 +35,14 @@ namespace CodeFlattener
                 .Where(file =>
                 {
                     string relativePath = Path.GetRelativePath(rootFolder, file);
-                    return !IsPathIgnored(relativePath, ignoredPaths);
-                })
-                .Where(file => acceptedFileTypes.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase));
+                    Console.WriteLine($"Checking {relativePath}");
+                    return !IsPathIgnored(relativePath, ignoredPaths) && acceptedFileTypes.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase);
+                });
         }
 
         private static bool IsPathIgnored(string path, string[] ignoredPaths)
         {
             return ignoredPaths.Any(ignoredPath =>
-                path.StartsWith(ignoredPath, StringComparison.OrdinalIgnoreCase) ||
                 path.Split(Path.DirectorySeparatorChar).Any(segment =>
                     segment.Equals(ignoredPath, StringComparison.OrdinalIgnoreCase)));
         }
@@ -75,7 +74,7 @@ namespace CodeFlattener
         {
             // Remove all whitespace except for single spaces between words
             content = ExtraSpaces().Replace(content, " ");
-            // remove all whitespaces except for single spaces between words, agiain
+            // remove all whitespaces except for single spaces between words, again
             content = ExtraSpaces().Replace(content, " ");
             // Remove spaces after certain characters
             content = SpacesAfterSyntax().Replace(content, "$1");
