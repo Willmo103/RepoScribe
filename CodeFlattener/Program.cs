@@ -1,125 +1,114 @@
-﻿using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+﻿using CodeFlattener.Core.DataModels;
+using CodeFlattener.Core.FileHandlers;
+using CodeFlattener.Core.Helpers;
+using CodeFlattener.Core.Utilities;
+using Serilog;
+using System;
+using System.CommandLine;
+using System.Text;
 
-namespace CodeFlattener
+namespace FlattenCodebase
 {
-    public class Program
+    class Program
     {
-        public static void Main(string[] args)
+        static int Main(string[] args)
         {
-            try
-            {
-                var config = BuildConfiguration();
-                RunCodeFlattener(args, config);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unhandled error occurred: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-            }
-        }
+            Logger.Initialize();
 
-        public static void RunCodeFlattener(string[] args, IConfiguration config)
-        {
-            try
+            var rootCommand = new RootCommand("FlattenCodebase Tool");
+
+            var inputOption = new Option<string>(
+                new[] { "--input", "-i" },
+                "The root directory to process");
+
+            var outputOption = new Option<string>(
+                new[] { "--output", "-o" },
+            "The output Markdown file");
+
+            var compressOption = new Option<bool>(
+                new[] { "--compress", "-c" },
+                () => false,
+                "Enable content compression");
+
+            rootCommand.AddOption(inputOption);
+            rootCommand.AddOption(outputOption);
+            rootCommand.AddOption(compressOption);
+
+            rootCommand.SetHandler((input, output, compress) =>
             {
-                if (args.Length < 2 || args.Length > 3)
+                try
                 {
-                    Console.WriteLine("Usage: CodeFlattener <rootFolder> <outputFile> [-c|-Compress]");
-                    return;
+                    var configManager = new ConfigurationManager("appsettings.json");
+                    var languageMap = configManager.GetLanguageMap();
+                    var ignoredPaths = configManager.GetIgnoredPaths();
+
+                    var fileHandlers = new List<IFileHandler>
+                    {
+                        new CodeFileHandler(languageMap)
+                    };
+
+                    var fileHelper = new FileHelper(fileHandlers);
+
+                    var files = Directory.EnumerateFiles(input, "*.*", SearchOption.AllDirectories)
+                        .Where(file => !ignoredPaths.Any(ignored => file.Contains(ignored)))
+                        .ToList();
+
+                    var markdownContent = new StringBuilder();
+
+                    foreach (var filePath in files)
+                    {
+                        var fileMetadata = fileHelper.ProcessFile(filePath);
+                        if (fileMetadata != null)
+                        {
+                            AppendFileContent(markdownContent, input, fileMetadata, compress);
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(output))
+                    {
+                        File.WriteAllText(output, markdownContent.ToString());
+                        Log.Information($"Output written to {output}");
+                    }
+                    else
+                    {
+                        Console.WriteLine(markdownContent.ToString());
+                    }
                 }
-
-                string rootFolder = args[0];
-                string outputFile = args[1];
-                bool compress = args.Length == 3 && (args[2] == "-c" || args[2] == "-Compress");
-
-                Console.WriteLine($"Root folder: {rootFolder}, Output file: {outputFile}, Compress: {compress}");
-
-                var allowedFiles = config.GetSection("AllowedFiles").GetChildren().ToDictionary(x => x.Key, x => x.Value);
-                var ignoredPaths = config.GetSection("Ignored").GetChildren().ToDictionary(x => x.Key, x => x.Value);
-
-                Console.WriteLine($"Accepted file types: {string.Join(", ", allowedFiles.Keys)}");
-                Console.WriteLine($"Ignored paths: {string.Join(", ", ignoredPaths.Keys)}");
-
-                if (allowedFiles.Count == 0 || ignoredPaths.Count == 0)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Error: Configuration sections are missing or empty.");
-                    return;
+                    Log.Error(ex, "An error occurred while flattening the codebase.");
                 }
+                finally
+                {
+                    Logger.CloseAndFlush();
+                }
+            }, inputOption, outputOption, compressOption);
 
-                // Initialize the FileHelper with the allowed file types dictionary
-                FileHelper.Initialize(allowedFiles);
-
-                ValidateAndFlattenCodebase(rootFolder, outputFile, allowedFiles, ignoredPaths, compress);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unhandled error occurred: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-            }
+            return rootCommand.InvokeAsync(args).Result;
         }
 
-        private static IConfiguration BuildConfiguration()
+        private static void AppendFileContent(
+            StringBuilder markdownContent,
+            string rootFolder,
+            FileMetadata fileMetadata,
+            bool compress)
         {
-            string configPath = GetConfigPath();
-            if (string.IsNullOrEmpty(configPath))
-            {
-                throw new FileNotFoundException("Unable to locate appsettings.json");
-            }
+            var relativePath = Path.GetRelativePath(rootFolder, fileMetadata.Path);
+            markdownContent.AppendLine($"# {relativePath.Replace('\\', '/')}");
 
-            return new ConfigurationBuilder()
-                .AddJsonFile(configPath, optional: false, reloadOnChange: true)
-                .Build();
+            markdownContent.AppendLine($"```{fileMetadata.Language}");
+
+            var content = compress ? CompressContent(fileMetadata.Content) : fileMetadata.Content;
+
+            markdownContent.AppendLine(content);
+            markdownContent.AppendLine("```");
+            markdownContent.AppendLine();
         }
 
-        private static string GetConfigPath()
+        private static string CompressContent(string content)
         {
-            string[] possiblePaths =
-            {
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json"),
-                Path.Combine(Environment.CurrentDirectory, "appsettings.json"),
-                "appsettings.json"
-            };
-
-            return possiblePaths.FirstOrDefault(File.Exists) ?? throw new FileNotFoundException("Unable to locate appsettings.json");
-        }
-
-        private static void ValidateAndFlattenCodebase(string rootFolder, string outputFile, Dictionary<string, string> acceptedFileTypes, Dictionary<string, string> ignoredPaths, bool compress)
-        {
-            Console.WriteLine("Validating and flattening codebase...");
-            try
-            {
-                string absoluteRootFolder = Path.GetFullPath(rootFolder);
-                Console.WriteLine($"Root folder: {absoluteRootFolder}\nValidating Location...");
-
-                ValidateDirectoryExists(absoluteRootFolder);
-
-                string absoluteOutputFile = Path.IsPathRooted(outputFile) ? outputFile : Path.Combine(Directory.GetCurrentDirectory(), outputFile);
-                Console.WriteLine($"Output file: {absoluteOutputFile}");
-
-                Flattener flattener = new();
-                Flattener.FlattenCodebase(absoluteRootFolder, absoluteOutputFile, acceptedFileTypes.Keys.ToArray(), ignoredPaths.Keys.ToArray(), compress);
-
-                Console.WriteLine($"Output written to: {absoluteOutputFile}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message} -- {ex.StackTrace}");
-            }
-        }
-
-        private static void ValidateDirectoryExists(string path)
-        {
-            if (!Directory.Exists(path))
-            {
-                throw new DirectoryNotFoundException($"Directory not found: {path}");
-            }
-            Console.WriteLine($"Directory exists: {path}");
+            // Implement compression logic as needed
+            return content.Replace(" ", string.Empty);
         }
     }
 }
