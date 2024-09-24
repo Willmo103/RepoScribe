@@ -34,7 +34,7 @@ namespace FlattenCodebase
             rootCommand.AddOption(outputOption);
             rootCommand.AddOption(compressOption);
 
-            rootCommand.SetHandler((input, output, compress) =>
+            rootCommand.SetHandler((string input, string output, bool compress) =>
             {
                 try
                 {
@@ -83,7 +83,7 @@ namespace FlattenCodebase
                     Logger.CloseAndFlush();
                 }
             }, inputOption, outputOption, compressOption);
-
+           
             return rootCommand.InvokeAsync(args).Result;
         }
 

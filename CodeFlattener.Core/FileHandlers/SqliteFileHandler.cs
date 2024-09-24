@@ -1,5 +1,5 @@
 using CodeFlattener.Core.DataModels;
-using Microsoft.Data.Sqlite; // Add this using directive
+using Microsoft.Data.Sqlite;
 
 namespace CodeFlattener.Core.FileHandlers
 {
