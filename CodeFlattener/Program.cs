@@ -23,7 +23,7 @@ namespace FlattenCodebase
 
             var outputOption = new Option<string>(
                 new[] { "--output", "-o" },
-            "The output Markdown file");
+            "The output Markdown file. Default: ${output.basename}.md");
 
             var compressOption = new Option<bool>(
                 new[] { "--compress", "-c" },
@@ -34,10 +34,15 @@ namespace FlattenCodebase
             rootCommand.AddOption(outputOption);
             rootCommand.AddOption(compressOption);
 
-            rootCommand.SetHandler((string input, string output, bool compress) =>
+            rootCommand.SetHandler((string input, string? output, bool compress) =>
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(output))
+                    {
+                        // If no output file is specified, use the input directory name
+                        output = Path.Combine(input, Path.GetFileName(input) + ".md");
+                    }
                     var configManager = new ConfigurationManager("appsettings.json");
                     var languageMap = configManager.GetLanguageMap();
                     var ignoredPaths = configManager.GetIgnoredPaths();
@@ -49,20 +54,54 @@ namespace FlattenCodebase
 
                     var fileHelper = new FileHelper(fileHandlers);
 
-                    var files = Directory.EnumerateFiles(input, "*.*", SearchOption.AllDirectories)
-                        .Where(file => !ignoredPaths.Any(ignored => file.Contains(ignored)))
+                    // Resolve any relative paths into absolute paths (if needed)
+                    input = Path.GetFullPath(input);
+                    output = Path.GetFullPath(output);
+                    Log.Information($"Input Full Path: {input}");
+                    Log.Information($"Output Full Path: {output}");
+                    Log.Information($"Compress: {compress}");
+
+                    // Resolve any environment variables in the input path
+                    input = Environment.ExpandEnvironmentVariables(input);
+                    output = Environment.ExpandEnvironmentVariables(output);
+
+                    if (!Directory.Exists(input))
+                    {
+                        Log.Error($"The input directory {input} does not exist.");
+                        return;
+                    }
+
+                    var files = Directory.EnumerateFiles(input, "*", SearchOption.AllDirectories)
+                        .Where(file => !ignoredPaths.Any(ignored =>
+                            file.Contains(Path.DirectorySeparatorChar + ignored + Path.DirectorySeparatorChar) ||
+                            file.Contains(Path.DirectorySeparatorChar + ignored + Path.AltDirectorySeparatorChar) ||
+                            file.EndsWith(Path.DirectorySeparatorChar + ignored) ||
+                            file.EndsWith(Path.AltDirectorySeparatorChar + ignored)))
                         .ToList();
+
+                    Log.Information($"Found {files.Count} files to process.");
 
                     var markdownContent = new StringBuilder();
 
+                    // Set the title of the markdown file to the root folder name
+                    markdownContent.AppendLine($"# {Path.GetFileName(input)}");
+
                     foreach (var filePath in files)
                     {
-                        var fileMetadata = fileHelper.ProcessFile(filePath);
-                        if (fileMetadata != null)
+                        try
                         {
-                            AppendFileContent(markdownContent, input, fileMetadata, compress);
+                            var fileMetadata = fileHelper.ProcessFile(filePath);
+                            if (fileMetadata != null)
+                            {
+                                AppendFileContent(markdownContent, input, fileMetadata, compress);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Warning(ex, $"Failed to process file {filePath}. Skipping.");
                         }
                     }
+
 
                     if (!string.IsNullOrEmpty(output))
                     {
@@ -83,7 +122,7 @@ namespace FlattenCodebase
                     Logger.CloseAndFlush();
                 }
             }, inputOption, outputOption, compressOption);
-           
+
             return rootCommand.InvokeAsync(args).Result;
         }
 
