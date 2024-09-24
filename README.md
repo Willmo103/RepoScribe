@@ -1,47 +1,33 @@
-Sure, here is a README for your project:
-
----
-
 # FlattenCodeBase
 
-FlattenCodeBase is a utility for consolidating and organizing code files from a directory into a single Markdown document. This tool is particularly useful for creating comprehensive documentation or overviews of codebases by extracting and compressing the contents of code files.
+FlattenCodeBase is a tool for recursively scanning a directory of source code files and flattening them into a single Markdown file. It supports various file formats, ignores specified directories, and offers options for content compression.
 
-## Features
+### Features:
+- Supports multiple file types, including `.cs`, `.js`, `.ts`, `.html`, `.css`, `.json`, `.xml`, `.yml`, `.sql`, `.sh`, and more.
+- Ability to ignore specific directories or files like `node_modules`, `.git`, `bin`, `obj`, etc.
+- Outputs the flattened code with syntax highlighting in Markdown code blocks.
+- Optional compression of file content (removal of spaces).
+- Configurable through `appsettings.json` for allowed file types and ignored directories.
+- Additional support for Git repository management using commands to add, remove, clone, and list repositories.
+  
+### Usage:
 
-- **Path Filtering:** Exclude files from specific directories using configurable ignored paths.
-- **File Type Filtering:** Process only specified types of files using configurable allowed file types.
-- **Content Compression:** Optionally compress the content of code files by removing unnecessary whitespace.
-- **Language Identification:** Automatically identify the programming language of code files for syntax highlighting in Markdown.
-- **Comprehensive Error Handling:** Provides detailed error messages and stack traces for easier debugging.
-
-## Requirements
-
-- .NET 6.0 SDK or higher
-- A configuration file named `appsettings.json` in the project's root directory.
-
-## Installation
-
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/Willmo103/More-console-Apps.git
+1. **Basic Command:**
+   ```bash
+   CodeFlattener --input [root-directory] --output [output-file]
    ```
+   This command flattens the codebase from the given input directory to the specified output file in Markdown format.
 
-2. Navigate to the project directory:
-   ```sh
-   cd More-console-Apps/FlattenCodeBase
-   ```
+2. **Compression Option:**
+   Add the `--compress` or `-c` flag to enable compression of content within files (removes extra spaces).
 
-3. Restore dependencies:
-   ```sh
-   dotnet restore
-   ```
+3. **Repository Management Commands:**
+   - Add a Git repository: `CodeFlattener repo add [url]`
+   - Clone a Git repository: `CodeFlattener repo clone [url] --path [optional-path]`
+   - List repositories: `CodeFlattener repo list`
+   - Remove a repository: `CodeFlattener repo remove [url]`
 
-4. Build the project:
-   ```sh
-   dotnet build
-   ```
-
-## Configuration
+### Configuration:
 
 Create an `appsettings.json` file in the project root directory with the following structure:
 
@@ -85,35 +71,8 @@ Create an `appsettings.json` file in the project root directory with the followi
     ".env": "environment files",
     "package-lock.json": "package-lock.json",
     ".vs": "vs",
-    ".vscode": "vscode",
-    ".idea": "idea",
-    "__pycache__": "Python cache files",
-    ".pytest_cache": "pytest cache files",
-    ".mypy_cache": "mypy cache files",
-    ".tox": "tox",
-    ".venv": "venv",
-    "venv": "venv",
-    ".vscode-test": "vscode-test"
   }
 }
-```
-
-## Usage
-
-To run the FlattenCodeBase tool, use the following command:
-
-```sh
-dotnet run -- <rootFolder> <outputFile> [-c|-Compress]
-```
-
-- `<rootFolder>`: The root directory containing the code files to be processed.
-- `<outputFile>`: The path to the output Markdown file.
-- `[-c|-Compress]` (optional): Flag to enable content compression.
-
-### Example
-
-```sh
-dotnet run -- "C:\Projects\MyCodeBase" "C:\Projects\MyCodeBase\Documentation.md" -c
 ```
 
 ## Contributing
@@ -128,11 +87,6 @@ dotnet run -- "C:\Projects\MyCodeBase" "C:\Projects\MyCodeBase\Documentation.md"
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgements
-
-- [Newtonsoft.Json](https://www.newtonsoft.com/json) for JSON parsing.
-- [Microsoft.Extensions.Configuration](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration) for configuration handling.
 
 ## Contact
 
