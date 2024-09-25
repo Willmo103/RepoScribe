@@ -2,7 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 
-namespace CodeFlattener.Core.Utilities
+namespace RepoScribe.Core.Utilities
 {
     public class RepositoryManager
     {

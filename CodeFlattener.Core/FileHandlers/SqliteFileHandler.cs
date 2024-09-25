@@ -1,7 +1,7 @@
-using CodeFlattener.Core.DataModels;
+using RepoScribe.Core.DataModels;
 using Microsoft.Data.Sqlite;
 
-namespace CodeFlattener.Core.FileHandlers
+namespace RepoScribe.Core.FileHandlers
 {
     public class SqliteFileHandler : IFileHandler
     {

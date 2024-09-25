@@ -5,14 +5,14 @@
 //using Moq;
 //using Microsoft.Extensions.Configuration;
 
-//namespace CodeFlattener.Tests
+//namespace RepoScribe.Tests
 //{
-//    public class CodeFlattenerTests : IDisposable
+//    public class RepoScribeTests : IDisposable
 //    {
 //        private readonly string testDir;
 //        private readonly string outputFile;
 
-//        public CodeFlattenerTests()
+//        public RepoScribeTests()
 //        {
 //            testDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 //            Directory.CreateDirectory(testDir);
@@ -99,7 +99,7 @@
 //        }
 
 //        [Fact]
-//        public void RunCodeFlattener_WithValidArguments_FlattensCodabase()
+//        public void RunRepoScribe_WithValidArguments_FlattensCodabase()
 //        {
 //            // Arrange
 //            string[] args = [testDir, outputFile];
@@ -108,7 +108,7 @@
 //            mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
 
 //            // Act
-//            Program.RunCodeFlattener(args, mockConfiguration.Object);
+//            Program.RunRepoScribe(args, mockConfiguration.Object);
 
 //            // Assert
 //            Assert.True(File.Exists(outputFile));
@@ -119,7 +119,7 @@
 //        }
 
 //        [Fact]
-//        public void RunCodeFlattener_WithInvalidArguments_DoesNotFlattenCodebase()
+//        public void RunRepoScribe_WithInvalidArguments_DoesNotFlattenCodebase()
 //        {
 //            // Arrange
 //            string[] args = ["invalid_path", outputFile];
@@ -128,12 +128,12 @@
 //            mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
 
 //            // Act & Assert
-//            var exception = Assert.Throws<DirectoryNotFoundException>(() => Program.RunCodeFlattener(args, mockConfiguration.Object));
+//            var exception = Assert.Throws<DirectoryNotFoundException>(() => Program.RunRepoScribe(args, mockConfiguration.Object));
 //            Assert.Contains("Directory not found: invalid_path", exception.Message);
 //        }
 
 //        [Fact]
-//        public void RunCodeFlattener_WithCompressionFlag_CompressesOutput()
+//        public void RunRepoScribe_WithCompressionFlag_CompressesOutput()
 //        {
 //            // Arrange
 //            string[] args = [testDir, outputFile, "-c"];
@@ -142,7 +142,7 @@
 //            mockConfiguration.Setup(c => c.GetSection("IgnoredPaths").Value).Returns(".git");
 
 //            // Act
-//            Program.RunCodeFlattener(args, mockConfiguration.Object);
+//            Program.RunRepoScribe(args, mockConfiguration.Object);
 
 //            // Assert
 //            Assert.True(File.Exists(outputFile));

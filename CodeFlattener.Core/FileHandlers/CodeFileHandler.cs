@@ -1,6 +1,6 @@
-using CodeFlattener.Core.DataModels;
+using RepoScribe.Core.DataModels;
 
-namespace CodeFlattener.Core.FileHandlers
+namespace RepoScribe.Core.FileHandlers
 {
     public class CodeFileHandler : IFileHandler
     {

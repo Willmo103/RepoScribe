@@ -1,93 +1,185 @@
-# FlattenCodeBase
+# RepoScribe
 
-FlattenCodeBase is a tool for recursively scanning a directory of source code files and flattening them into a single Markdown file. It supports various file formats, ignores specified directories, and offers options for content compression.
+RepoScribe is a powerful tool to flatten and document your code repositories into comprehensive Markdown files. It supports various file types, manages ignored paths, and integrates seamlessly with Git repositories.
 
-### Features:
-- Supports multiple file types, including `.cs`, `.js`, `.ts`, `.html`, `.css`, `.json`, `.xml`, `.yml`, `.sql`, `.sh`, and more.
-- Ability to ignore specific directories or files like `node_modules`, `.git`, `bin`, `obj`, etc.
-- Outputs the flattened code with syntax highlighting in Markdown code blocks.
-- Optional compression of file content (removal of spaces).
-- Configurable through `appsettings.json` for allowed file types and ignored directories.
-- Additional support for Git repository management using commands to add, remove, clone, and list repositories.
-  
-### Usage:
+## Features
 
-1. **Basic Command:**
+- **Flatten Codebase:** Convert your entire codebase into a single Markdown document.
+- **Manage Ignored Paths:** Easily add, list, or remove paths that should be ignored during processing.
+- **Repository Management:** Add, list, remove, and clone Git repositories.
+- **Extract Code Blocks:** Extract code blocks from existing Markdown files with unique identifiers.
+
+## Installation
+
+1. **Clone the Repository:**
    ```bash
-   CodeFlattener --input [root-directory] --output [output-file]
+   git clone https://github.com/yourusername/RepoScribe.git
    ```
-   This command flattens the codebase from the given input directory to the specified output file in Markdown format.
 
-2. **Compression Option:**
-   Add the `--compress` or `-c` flag to enable compression of content within files (removes extra spaces).
+2. **Build the Project:**
+   ```bash
+   cd RepoScribe
+   dotnet build
+   ```
 
-3. **Repository Management Commands:**
-   - Add a Git repository: `CodeFlattener repo add [url]`
-   - Clone a Git repository: `CodeFlattener repo clone [url] --path [optional-path]`
-   - List repositories: `CodeFlattener repo list`
-   - Remove a repository: `CodeFlattener repo remove [url]`
+3. **Navigate to CLI:**
+   ```bash
+   cd RepoScribe.CLI
+   ```
 
-### Configuration:
+## Usage
 
-Create an `appsettings.json` file in the project root directory with the following structure:
+### Flatten a Codebase
+
+```bash
+repo-scribe flatten --input <path_to_codebase> --output <output_markdown_file> [--compress]
+```
+
+**Options:**
+- `--input`, `-i`: The root directory to process (required).
+- `--output`, `-o`: The output Markdown file. Defaults to `<input_basename>.md`.
+- `--compress`, `-c`: Enable content compression.
+
+**Example:**
+```bash
+repo-scribe flatten -i ./MyProject -o ./MyProjectDocumentation.md -c
+```
+
+### Manage Ignored Paths
+
+#### Add a Path to Ignore
+
+```bash
+repo-scribe ignore add <path>
+```
+
+**Example:**
+```bash
+repo-scribe ignore add node_modules
+```
+
+#### List Ignored Paths
+
+```bash
+repo-scribe ignore list
+```
+
+#### Remove a Path from Ignore
+
+```bash
+repo-scribe ignore remove <path>
+```
+
+**Example:**
+```bash
+repo-scribe ignore remove node_modules
+```
+
+### Manage Repositories
+
+#### Add a Repository
+
+```bash
+repo-scribe repo add <repository_url>
+```
+
+**Example:**
+```bash
+repo-scribe repo add https://github.com/yourusername/another-repo.git
+```
+
+#### List Repositories
+
+```bash
+repo-scribe repo list
+```
+
+#### Remove a Repository
+
+```bash
+repo-scribe repo remove <repository_url>
+```
+
+**Example:**
+```bash
+repo-scribe repo remove https://github.com/yourusername/another-repo.git
+```
+
+#### Clone a Repository
+
+```bash
+repo-scribe repo clone <repository_url> [--path <local_path>]
+```
+
+**Example:**
+```bash
+repo-scribe repo clone https://github.com/yourusername/another-repo.git -p ./ClonedRepos/another-repo
+```
+
+### Extract Code Blocks
+
+```bash
+repo-scribe extract --config <config_file>
+```
+
+**Options:**
+- `--config`, `-c`: Path to the configuration file. Defaults to `config.json`.
+
+**Example:**
+```bash
+repo-scribe extract -c ./config.json
+```
+
+## Configuration
+
+### `appsettings.json`
+
+Defines allowed file types and ignored paths.
 
 ```json
 {
   "AllowedFiles": {
     ".cs": "csharp",
     ".js": "javascript",
-    ".ts": "typescript",
-    ".html": "html",
-    ".css": "css",
-    ".scss": "scss",
-    ".json": "json",
-    ".xml": "xml",
-    ".yml": "yaml",
-    ".yaml": "yaml",
-    ".md": "markdown",
-    ".txt": "plaintext",
-    ".csproj": "xml",
-    ".csv": "csv",
-    ".sql": "sql",
-    ".sh": "shellscript",
-    ".bat": "batch",
-    ".ps1": "powershell",
-    ".psm1": "powershell",
-    ".psd1": "powershell",
-    ".ps1xml": "powershell",
-    ".xaml": "xaml",
-    ".config": "xml",
-    ".gitignore": "gitignore",
-    ".editorconfig": "editorconfig",
-    ".dockerignore": "dockerignore",
-    ".dockerfile": "dockerfile",
-    ".sln": "xml"
+    // ... other file types
   },
   "Ignored": {
-    ".git": "Anything in the .git folder",
     "node_modules": "node_modules",
     "bin": "bin",
-    "obj": "obj",
-    ".env": "environment files",
-    "package-lock.json": "package-lock.json",
-    ".vs": "vs",
-  }
+    // ... other ignored paths
+  },
+  "ExtractChunksInputDirectory": "path_to_markdown_files"
 }
+```
+
+### `config.json`
+
+Used for extract operations.
+
+```json
+{
+  "ExtractChunksInputDirectory": "./MarkdownFiles",
+  "FlattenAllOutputDirectory": "./FlattenedOutput"
+}
+```
+
+## Logging
+
+RepoScribe uses Serilog for logging. Logs are output to the console and saved to `logs/log.txt` with daily rolling.
+
+## Testing
+
+Run unit tests using:
+
+```bash
+cd RepoScribe.Tests
+dotnet test
 ```
 
 ## Contributing
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/your-feature`).
-3. Make your changes.
-4. Commit your changes (`git commit -am 'Add some feature'`).
-5. Push to the branch (`git push origin feature/your-feature`).
-6. Create a new Pull Request.
+Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bugs.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For any questions or issues, please open an issue on GitHub or contact @Willmo103.
+[MIT](LICENSE)

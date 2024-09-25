@@ -1,7 +1,7 @@
-using CodeFlattener.Core.DataModels;
+using RepoScribe.Core.DataModels;
 using LibGit2Sharp;
 
-namespace CodeFlattener.Core.Helpers
+namespace RepoScribe.Core.Helpers
 {
     public class GitHelper
     {

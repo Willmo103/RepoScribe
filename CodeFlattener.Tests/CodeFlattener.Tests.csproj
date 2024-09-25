@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CodeFlattener\CodeFlattener.csproj" />
+    <ProjectReference Include="..\RepoScribe\RepoScribe.csproj" />
   </ItemGroup>
 
 </Project>

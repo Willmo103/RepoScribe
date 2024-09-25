@@ -1,6 +1,6 @@
 using Serilog;
 
-namespace CodeFlattener.Core.Utilities
+namespace RepoScribe.Core.Utilities
 {
     public static class Logger
     {

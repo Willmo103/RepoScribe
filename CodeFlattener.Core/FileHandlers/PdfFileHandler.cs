@@ -1,10 +1,10 @@
 using System.Reflection.PortableExecutable;
 using System.Text;
-using CodeFlattener.Core.DataModels;
+using RepoScribe.Core.DataModels;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
-namespace CodeFlattener.Core.FileHandlers
+namespace RepoScribe.Core.FileHandlers
 {
     public class PdfFileHandler : IFileHandler
     {

@@ -1,7 +1,7 @@
 using LibGit2Sharp;
 using Microsoft.Extensions.Configuration;
 
-namespace CodeFlattener.Core.Utilities
+namespace RepoScribe.Core.Utilities
 {
     public class ConfigurationManager
     {

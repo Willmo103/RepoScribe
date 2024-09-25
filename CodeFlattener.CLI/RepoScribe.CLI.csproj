@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\CodeFlattener.Core\CodeFlattener.Core.csproj" />
+		<ProjectReference Include="..\CodeFlattener.Core\RepoScribe.Core.csproj" />
 		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 		<PackageReference Include="System.CommandLine" Version="2.0.0-beta1.22112.1" />

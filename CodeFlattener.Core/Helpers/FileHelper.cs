@@ -1,7 +1,7 @@
-using CodeFlattener.Core.DataModels;
-using CodeFlattener.Core.FileHandlers;
+using RepoScribe.Core.DataModels;
+using RepoScribe.Core.FileHandlers;
 
-namespace CodeFlattener.Core.Helpers
+namespace RepoScribe.Core.Helpers
 {
     public class FileHelper
     {

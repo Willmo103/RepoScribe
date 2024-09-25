@@ -1,4 +1,4 @@
-namespace CodeFlattener.Core.DataModels
+namespace RepoScribe.Core.DataModels
 {
     public class FileMetadata
     {

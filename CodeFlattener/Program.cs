@@ -1,7 +1,7 @@
-﻿using CodeFlattener.Core.DataModels;
-using CodeFlattener.Core.FileHandlers;
-using CodeFlattener.Core.Helpers;
-using CodeFlattener.Core.Utilities;
+﻿using RepoScribe.Core.DataModels;
+using RepoScribe.Core.FileHandlers;
+using RepoScribe.Core.Helpers;
+using RepoScribe.Core.Utilities;
 using Serilog;
 using System;
 using System.CommandLine;
