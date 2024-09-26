@@ -19,8 +19,5 @@
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.22112.1" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DataModels\" />
-  </ItemGroup>
 
 </Project>
