@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Invocation;
 using RepoScribe.Core.DataModels.Markdown;
 using RepoScribe.Core.Helpers;
 using RepoScribe.Core.Utilities;
@@ -7,12 +6,14 @@ using RepoScribe.Core.Services;
 using Serilog;
 using RepoScribe.Core.DataModels;
 using RepoScribe.Core.FileHandlers;
+using System.Threading;
+using System.CommandLine.Invocation;
 
 namespace RepoScribe.CLI.Commands
 {
-    public class FlattenCommand
+    public class FlattenCommand : BaseCommand
     {
-        public Command GetCommand()
+        public override Command GetCommand()
         {
             var command = new Command("flatten", "Flatten a codebase into a Markdown document");
 
@@ -34,13 +35,19 @@ namespace RepoScribe.CLI.Commands
             command.AddOption(outputOption);
             command.AddOption(compressOption);
 
-            command.Handler = CommandHandler.Create<string, string, bool>(HandleFlatten);
+            // Assign the handler using a lambda that accepts the options and the InvocationContext
+            command.SetHandler((string input, string output, bool compress, InvocationContext context) =>
+                HandleFlatten(input, output, compress, context),
+                inputOption, outputOption, compressOption);
 
             return command;
         }
 
-        private void HandleFlatten(string input, string output, bool compress)
+        private void HandleFlatten(string input, string output, bool compress, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 if (string.IsNullOrEmpty(output))
@@ -75,6 +82,7 @@ namespace RepoScribe.CLI.Commands
                 if (!Directory.Exists(input))
                 {
                     Log.Error($"The input directory {input} does not exist.");
+                    context.ExitCode = 1;
                     return;
                 }
 
@@ -110,10 +118,12 @@ namespace RepoScribe.CLI.Commands
 
                 File.WriteAllText(output, markdownContent.ToString());
                 Log.Information($"Output written to {output}");
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while flattening the codebase.");
+                context.ExitCode = 1;
             }
             finally
             {

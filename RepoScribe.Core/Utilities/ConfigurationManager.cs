@@ -29,6 +29,11 @@ namespace RepoScribe.Core.Utilities
                 .ToList();
         }
 
+        public string GetExtractChunksInputDirectory()
+        {
+            return _configuration.GetSection("ExtractChunksInputDirectory").Value ?? "%USERPROFILE%\\Documents\\Codeblocks";
+        }
+
         // Profiles Will be implemented in a future version. 
         // Control for specific configurations for scanning different directories
 

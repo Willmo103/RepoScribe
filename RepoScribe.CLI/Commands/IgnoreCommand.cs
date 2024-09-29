@@ -1,30 +1,39 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Invocation;
 using RepoScribe.Core.Utilities;
 using Serilog;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace RepoScribe.CLI.Commands
 {
-    public class IgnoreCommand
+    public class IgnoreCommand : BaseCommand
     {
-        public Command GetCommand()
+        public override Command GetCommand()
         {
             var command = new Command("ignore", "Manage ignored paths");
 
             var addCommand = new Command("add", "Add a path to the ignore list")
-            {
-                new Argument<string>("path", "The path to ignore")
-            };
-            addCommand.Handler = CommandHandler.Create<string>(HandleAddIgnore);
+                {
+                    new Argument<string>("path", "The path to ignore")
+                };
+            addCommand.SetHandler((string path, InvocationContext context) =>
+                HandleAddIgnore(path, context),
+                addCommand.Arguments[0]);
 
             var listCommand = new Command("list", "List ignored paths");
-            listCommand.Handler = CommandHandler.Create(HandleListIgnore);
+            listCommand.SetHandler(async (InvocationContext context) =>
+                await HandleListIgnore(context));
 
             var removeCommand = new Command("remove", "Remove a path from the ignore list")
-            {
-                new Argument<string>("path", "The path to remove")
-            };
-            removeCommand.Handler = CommandHandler.Create<string>(HandleRemoveIgnore);
+                {
+                    new Argument<string>("path", "The path to remove")
+                };
+            removeCommand.SetHandler((string path, InvocationContext context) =>
+                HandleRemoveIgnore(path, context),
+                removeCommand.Arguments[0]);
 
             command.AddCommand(addCommand);
             command.AddCommand(listCommand);
@@ -33,8 +42,11 @@ namespace RepoScribe.CLI.Commands
             return command;
         }
 
-        private void HandleAddIgnore(string path)
+        private void HandleAddIgnore(string path, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var configPath = "appsettings.json";
@@ -51,15 +63,21 @@ namespace RepoScribe.CLI.Commands
                 {
                     Log.Information($"'{path}' is already in the ignore list.");
                 }
+
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to add ignore path.");
+                context.ExitCode = 1;
             }
         }
 
-        private void HandleListIgnore()
+        private async Task HandleListIgnore(InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var config = new ConfigurationManager("appsettings.json");
@@ -67,17 +85,23 @@ namespace RepoScribe.CLI.Commands
                 Log.Information("Ignored Paths:");
                 foreach (var path in ignoredPaths)
                 {
-                    Console.WriteLine($"- {path}");
+                    console.Out.WriteLine($"- {path}");
                 }
+
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to list ignore paths.");
+                context.ExitCode = 1;
             }
         }
 
-        private void HandleRemoveIgnore(string path)
+        private void HandleRemoveIgnore(string path, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var configPath = "appsettings.json";
@@ -93,25 +117,28 @@ namespace RepoScribe.CLI.Commands
                 {
                     Log.Information($"'{path}' was not found in the ignore list.");
                 }
+
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to remove ignore path.");
+                context.ExitCode = 1;
             }
         }
 
         private void SaveIgnoredPaths(string configPath, List<string> ignoredPaths)
         {
             var configJson = File.ReadAllText(configPath);
-            dynamic configData = Newtonsoft.Json.JsonConvert.DeserializeObject(configJson);
+            dynamic configData = JsonConvert.DeserializeObject(configJson);
 
-            configData.Ignored = new Newtonsoft.Json.Linq.JObject();
+            configData.Ignored = new JObject();
             foreach (var path in ignoredPaths)
             {
                 configData.Ignored[path] = "User Ignored Path";
             }
 
-            var updatedJson = Newtonsoft.Json.JsonConvert.SerializeObject(configData, Newtonsoft.Json.Formatting.Indented);
+            var updatedJson = JsonConvert.SerializeObject(configData, Formatting.Indented);
             File.WriteAllText(configPath, updatedJson);
         }
     }

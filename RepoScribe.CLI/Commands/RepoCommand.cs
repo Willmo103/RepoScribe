@@ -1,38 +1,49 @@
-﻿using System.CommandLine;
-using System.CommandLine.Invocation;
-using RepoScribe.Core.Utilities;
+﻿using RepoScribe.Core.Utilities;
 using LibGit2Sharp;
 using Serilog;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace RepoScribe.CLI.Commands
 {
-    public class RepoCommand
+    public class RepoCommand : BaseCommand
     {
-        public Command GetCommand()
+        public override Command GetCommand()
         {
             var command = new Command("repo", "Manage repositories");
 
             var addRepoCommand = new Command("add", "Add a repository")
-            {
-                new Argument<string>("url", "The Git repository URL")
-            };
-            addRepoCommand.Handler = CommandHandler.Create<string>(HandleAddRepo);
+                {
+                    new Argument<string>("url", "The Git repository URL")
+                };
+            addRepoCommand.SetHandler((string url, InvocationContext context) =>
+                HandleAddRepo(url, context),
+                addRepoCommand.Arguments[0]);
 
             var listRepoCommand = new Command("list", "List repositories");
-            listRepoCommand.Handler = CommandHandler.Create(HandleListRepo);
+
+            listRepoCommand.SetHandler(async (InvocationContext context) =>
+                await HandleListRepo(context));
+
 
             var removeRepoCommand = new Command("remove", "Remove a repository")
-            {
-                new Argument<string>("url", "The Git repository URL to remove")
-            };
-            removeRepoCommand.Handler = CommandHandler.Create<string>(HandleRemoveRepo);
+                {
+                    new Argument<string>("url", "The Git repository URL to remove")
+                };
+            removeRepoCommand.SetHandler((string url, InvocationContext context) =>
+                HandleRemoveRepo(url, context),
+                removeRepoCommand.Arguments[0]);
 
             var cloneRepoCommand = new Command("clone", "Clone a repository")
-            {
-                new Argument<string>("url", "The Git repository URL to clone"),
-                new Option<string>(new[] { "--path", "-p" }, "The local path to clone the repository into")
-            };
-            cloneRepoCommand.Handler = CommandHandler.Create<string, string>(HandleCloneRepo);
+                {
+                    new Argument<string>("url", "The Git repository URL to clone"),
+                    new Option<string>(new[] { "--path", "-p" }, "The local path to clone the repository into")
+                };
+            cloneRepoCommand.SetHandler((string url, string path, InvocationContext context) =>
+                HandleCloneRepo(url, path, context),
+                cloneRepoCommand.Arguments[0],
+                cloneRepoCommand.Options[0]);
 
             command.AddCommand(addRepoCommand);
             command.AddCommand(listRepoCommand);
@@ -42,8 +53,11 @@ namespace RepoScribe.CLI.Commands
             return command;
         }
 
-        private void HandleAddRepo(string url)
+        private void HandleAddRepo(string url, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var configPath = "repositories.json";
@@ -59,32 +73,44 @@ namespace RepoScribe.CLI.Commands
                 {
                     Log.Information($"Repository '{url}' is already in the list.");
                 }
+
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to add repository.");
+                context.ExitCode = 1;
             }
         }
 
-        private void HandleListRepo()
+        private async Task HandleListRepo(InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var repoManager = new RepositoryManager("repositories.json");
                 Log.Information("Repositories:");
                 foreach (var repo in repoManager.Repositories)
                 {
-                    Console.WriteLine($"- {repo}");
+                    console.Out.WriteLine($"- {repo}");
                 }
+
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to list repositories.");
+                context.ExitCode = 1;
             }
         }
 
-        private void HandleRemoveRepo(string url)
+        private void HandleRemoveRepo(string url, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var repoManager = new RepositoryManager("repositories.json");
@@ -98,15 +124,21 @@ namespace RepoScribe.CLI.Commands
                 {
                     Log.Information($"Repository '{url}' was not found in the list.");
                 }
+
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to remove repository.");
+                context.ExitCode = 1;
             }
         }
 
-        private void HandleCloneRepo(string url, string path)
+        private void HandleCloneRepo(string url, string path, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 if (string.IsNullOrEmpty(path))
@@ -116,10 +148,12 @@ namespace RepoScribe.CLI.Commands
 
                 Repository.Clone(url, path);
                 Log.Information($"Cloned repository '{url}' to '{path}'.");
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, $"Failed to clone repository '{url}'.");
+                context.ExitCode = 1;
             }
         }
     }

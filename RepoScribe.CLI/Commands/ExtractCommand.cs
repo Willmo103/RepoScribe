@@ -1,13 +1,16 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Invocation;
 using RepoScribe.Core.Services;
+using RepoScribe.Core.Utilities;
 using Serilog;
+using System.Threading;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace RepoScribe.CLI.Commands
 {
-    public class ExtractCommand
+    public class ExtractCommand : BaseCommand
     {
-        public Command GetCommand()
+        public override Command GetCommand()
         {
             var command = new Command("extract", "Extract code blocks from Markdown files");
 
@@ -18,13 +21,19 @@ namespace RepoScribe.CLI.Commands
 
             command.AddOption(configPathOption);
 
-            command.Handler = CommandHandler.Create<string>(HandleExtract);
+            // Assign the handler using a lambda that accepts the config option and the InvocationContext
+            command.SetHandler((string config, InvocationContext context) =>
+                HandleExtract(config, context),
+                configPathOption);
 
             return command;
         }
 
-        private void HandleExtract(string config)
+        private void HandleExtract(string config, InvocationContext context)
         {
+            var console = context.Console;
+            var cancellationToken = context.GetCancellationToken();
+
             try
             {
                 var configManager = new ConfigurationManager(config);
@@ -33,6 +42,7 @@ namespace RepoScribe.CLI.Commands
                 if (string.IsNullOrEmpty(inputDirectory) || !Directory.Exists(inputDirectory))
                 {
                     Log.Error($"Invalid input directory: {inputDirectory}");
+                    context.ExitCode = 1;
                     return;
                 }
 
@@ -41,14 +51,20 @@ namespace RepoScribe.CLI.Commands
 
                 foreach (var codeBlock in codeBlocks)
                 {
-                    Console.WriteLine(codeBlock);
+                    console.Out.WriteLine(codeBlock);
                 }
 
                 Log.Information("Code blocks extraction completed.");
+                context.ExitCode = 0;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Failed to extract code blocks.");
+                context.ExitCode = 1;
+            }
+            finally
+            {
+                Logger.CloseAndFlush();
             }
         }
     }
