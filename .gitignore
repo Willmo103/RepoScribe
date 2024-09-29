@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /FlattenCodeBase-3.0.0.md
 /automation-scripts.md
+/RepoScribe.CLI/.md
+/RepoScribe.CLI/_.ps1
