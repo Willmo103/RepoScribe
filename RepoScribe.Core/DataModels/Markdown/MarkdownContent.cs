@@ -1,6 +1,8 @@
-﻿namespace RepoScribe.Core.DataModels.Markdown
+﻿using RepoScribe.Core.DataModels.Markdown;
+
+namespace RepoScribe.Core.DataModels.Markdown
 {
-    public abstract class MarkdownContent
+    public abstract class MarkdownContent : IOutputTemplating
     {
         public abstract string ToMarkdown();
 
@@ -9,8 +11,12 @@
             return ToMarkdown();
         }
 
-        public abstract string ApplyTemplate(string template);
+        public virtual string ApplyTemplate(string template)
+        {
+            return string.Format(template, ToMarkdown());
+        }
     }
+}
 
     /*
     public enum ContextualInputSource
@@ -40,7 +46,7 @@
 
     // Additional classes and enums can be defined here
     */
-}
+//}
 /*
 async multi-shot generation based on nearest neighbor search using domaine of previous questions 
 the user Might ask and the context of the current question to generate several responses with diferent 
