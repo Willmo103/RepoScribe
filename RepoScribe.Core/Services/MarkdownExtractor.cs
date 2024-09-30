@@ -1,16 +1,19 @@
-﻿using RepoScribe.Core.DataModels.Markdown;
+﻿using RepoScribe.Core.Abstractions;
 using RepoScribe.Core.Utilities;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace RepoScribe.Core.Services
 {
     public class MarkdownExtractor
     {
         private readonly string _inputDirectory;
+        private readonly IRenderer _renderer;
 
-        public MarkdownExtractor(string inputDirectory)
+        public MarkdownExtractor(string inputDirectory, IRenderer renderer)
         {
             _inputDirectory = inputDirectory;
+            _renderer = renderer;
         }
 
         public IEnumerable<string> ExtractCodeBlocks()
@@ -35,7 +38,7 @@ namespace RepoScribe.Core.Services
                         Content = codeContent
                     };
 
-                    yield return Newtonsoft.Json.JsonConvert.SerializeObject(codeObject);
+                    yield return JsonConvert.SerializeObject(codeObject);
                 }
             }
         }

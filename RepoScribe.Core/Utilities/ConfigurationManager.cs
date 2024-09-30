@@ -1,4 +1,3 @@
-using LibGit2Sharp;
 using Microsoft.Extensions.Configuration;
 
 namespace RepoScribe.Core.Utilities
@@ -9,48 +8,41 @@ namespace RepoScribe.Core.Utilities
         // Default configuration paths for the application
 
         // If the user has a configuration file in their home directory, use that
-        protected string _homeDirConfigPath = "%USERPROFILE%\\Documents\\RepoScribe\\appsettings.json";
+        protected string _homeDirConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "RepoScribe", "appsettings.json");
 
         // If the user has a configuration file in the application directory, use that
         protected string _defaultConfigPath = "appsettings.json";
 
         // If the path is set as an environment variable, use that
-        protected string _envVarConfigPath = System.Environment.GetEnvironmentVariable("REPOSCRIBE_CONFIG") ?? "";
+        protected string _envVarConfigPath = Environment.GetEnvironmentVariable("REPOSCRIBE_CONFIG") ?? "";
 
-        protected ConfigurationManager()
+        public ConfigurationManager()
         {
             try
             {
+                var builder = new ConfigurationBuilder();
 
-                if (System.IO.File.Exists(_homeDirConfigPath))
+                if (File.Exists(_envVarConfigPath))
                 {
-                    _configuration = new ConfigurationBuilder()
-                        .AddJsonFile(_homeDirConfigPath, optional: true)
-                        .Build();
+                    builder.AddJsonFile(_envVarConfigPath, optional: true);
                 }
-                else if (System.IO.File.Exists(_defaultConfigPath))
+
+                if (File.Exists(_homeDirConfigPath))
                 {
-                    _configuration = new ConfigurationBuilder()
-                        .AddJsonFile(_defaultConfigPath, optional: true)
-                        .Build();
+                    builder.AddJsonFile(_homeDirConfigPath, optional: true);
                 }
-                else if (System.IO.File.Exists(_envVarConfigPath))
+
+                if (File.Exists(_defaultConfigPath))
                 {
-                    _configuration = new ConfigurationBuilder()
-                        .AddJsonFile(_envVarConfigPath, optional: true)
-                        .Build();
+                    builder.AddJsonFile(_defaultConfigPath, optional: true);
                 }
-                else
-                {
-                    _configuration = new ConfigurationBuilder()
-                        .AddJsonFile("appsettings.json", optional: true)
-                        .Build();
-                }
-            } catch (System.IO.FileNotFoundException)
-            {
-                throw new System.IO.FileNotFoundException("No configuration file found. Please create an appsettings.json file in the application directory or in your home directory.");
+
+                _configuration = builder.Build();
             }
-
+            catch (FileNotFoundException)
+            {
+                throw new FileNotFoundException("No configuration file found. Please create an appsettings.json file in the application directory or in your home directory.");
+            }
         }
 
         public ConfigurationManager(string configPath)
@@ -77,25 +69,9 @@ namespace RepoScribe.Core.Utilities
 
         public string GetExtractChunksInputDirectory()
         {
-            return _configuration.GetSection("ExtractChunksInputDirectory").Value ?? "%USERPROFILE%\\Documents\\Codeblocks";
+            return _configuration.GetSection("ExtractChunksInputDirectory").Value ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Codeblocks");
         }
 
-        // Profiles Will be implemented in a future version. 
-        // Control for specific configurations for scanning different directories
-
-        // Potential Profiles: 
-
-        // 1. Default: Scan all files, no exclusions
-        // 2. BuildIgnore: Generates list of extensions to ignore by attempting to read files
-        //    And adding them to the JSON file as they are unreadable
-        // 3. Custom: User-defined profile: Create a specific list of extensions to scan or ignore load a profile by name
-
-        //public List<Dictionary<string, string>> GetProfiles()
-        //{
-        //    return _configuration.GetSection("Profiles")
-        //        .GetChildren()
-        //        .Select(x => x.GetChildren().ToDictionary(y => y.Key, y => y.Value))
-        //        .ToList();
-        //}
+        // Future implementations for Profiles can be added here
     }
 }

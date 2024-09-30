@@ -1,4 +1,6 @@
-﻿namespace RepoScribe.Core.Abstractions
+﻿using RepoScribe.Core.ContentItems;
+
+namespace RepoScribe.Core.Abstractions
 {
     public interface IRenderer
     {
