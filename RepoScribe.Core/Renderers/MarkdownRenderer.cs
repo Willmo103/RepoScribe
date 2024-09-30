@@ -1,25 +1,24 @@
 ﻿using System.Text;
 using RepoScribe.Core.Abstractions;
 using RepoScribe.Core.ContentItems;
-using RepoScribe.Core.
 using RepoScribe.Core.DataModels.Markdown;
 
 namespace RepoScribe.Core.Renderers
 {
     public class MarkdownRenderer : IRenderer
     {
-        public void HandleRenderRequest (ContentItem contentItem)
-        {
-            // Determine the type of content item and render accordingly'
-            if (contentItem.CanRender("Markdown"))
-            {
-                var template = contentItem.FormatTemplate("Markdown");
-            }
-            else
-            {
-                throw new UnrenderableContent("Content item cannot be rendered as Markdown");
-            }
-        }
+        //public void HandleRenderRequest (ContentItem contentItem)
+        //{
+        //    // Determine the type of content item and render accordingly'
+        //    if (contentItem.CanRender("Markdown"))
+        //    {
+        //        var template = contentItem.FormatTemplate("Markdown");
+        //    }
+        //    else
+        //    {
+        //        throw new UnrenderableContent("Content item cannot be rendered as Markdown");
+        //    }
+        //}
 
         public string Render(ContentItem contentItem)
         {

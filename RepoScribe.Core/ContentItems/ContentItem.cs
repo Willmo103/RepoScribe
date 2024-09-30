@@ -12,8 +12,8 @@ namespace RepoScribe.Core.ContentItems
         public double SizeMB { get; set; }
         public string Language { get; set; }
         public string Content { get; set; }
-        public Domain Domain { get; set; }
-        public ContextualInputSource ContextSource { get; set; }
+        //public Domain Domain { get; set; }  // Domain is not yet implemented
+        //public ContextualInputSource ContextSource { get; set; } // Contextual Input Source
 
         // Navigation properties or additional relationships can be added here
     }
