@@ -10,6 +10,7 @@ namespace RepoScribe.Core.Database
         public DbSet<ImageContentItemEntity> ImageContentItems { get; set; }
         public DbSet<PdfContentItemEntity> PdfContentItems { get; set; }
         public DbSet<RepositoryContentItemEntity> RepositoryContentItems { get; set; }
+        public DbSet<LineContentEntity> LineContents { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -29,7 +30,12 @@ namespace RepoScribe.Core.Database
                 .HasValue<PdfContentItemEntity>("PdfContentItem")
                 .HasValue<RepositoryContentItemEntity>("RepositoryContentItem");
 
-            // Additional configurations can be added here
+            // Configure LineContentEntity relationship
+            modelBuilder.Entity<LineContentEntity>()
+                .HasOne(l => l.ContentItem)
+                .WithMany()
+                .HasForeignKey(l => l.ContentItemEntityId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

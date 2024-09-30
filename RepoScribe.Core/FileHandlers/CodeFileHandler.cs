@@ -1,7 +1,9 @@
 using RepoScribe.Core.DataModels;
+using System;
 
 namespace RepoScribe.Core.FileHandlers
 {
+    [Obsolete("CodeFileHandler is deprecated. Use CodeContentExtractor instead.")]
     public class CodeFileHandler : IFileHandler
     {
         private readonly Dictionary<string, string> _languageMap;

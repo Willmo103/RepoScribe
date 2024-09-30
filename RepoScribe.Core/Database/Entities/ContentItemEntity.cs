@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using RepoScribe.Core.DataModels.Enums;
 
 namespace RepoScribe.Core.Database.Entities
 {
@@ -14,7 +15,10 @@ namespace RepoScribe.Core.Database.Entities
         public double SizeMB { get; set; }
         public string Language { get; set; }
         public string Content { get; set; }
-        public string Domain { get; set; }
-        public string ContextSource { get; set; }
+        public Domain Domain { get; set; }
+        public ContextualInputSource ContextSource { get; set; }
+
+        // Navigation property
+        public ICollection<LineContentEntity> Lines { get; set; } = new List<LineContentEntity>();
     }
 }

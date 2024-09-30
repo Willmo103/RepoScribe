@@ -3,6 +3,7 @@ using RepoScribe.Core.FileHandlers;
 
 namespace RepoScribe.Core.Helpers
 {
+    [Obsolete("FileHelper is deprecated. Use InputProcessor with ContentExtractors instead.")]
     public class FileHelper
     {
         private readonly List<IFileHandler> _fileHandlers;

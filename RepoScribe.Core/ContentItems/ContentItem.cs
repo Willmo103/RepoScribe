@@ -1,5 +1,5 @@
-﻿using RepoScribe.Core.DataModels.Markdown;
-using RepoScribe.Core.Abstractions;
+﻿using RepoScribe.Core.Abstractions;
+using RepoScribe.Core.DataModels.Enums;
 
 namespace RepoScribe.Core.ContentItems
 {
@@ -12,8 +12,8 @@ namespace RepoScribe.Core.ContentItems
         public double SizeMB { get; set; }
         public string Language { get; set; }
         public string Content { get; set; }
-        //public Domain Domain { get; set; }  // Domain is not yet implemented
-        //public ContextualInputSource ContextSource { get; set; } // Contextual Input Source
+        public Domain Domain { get; set; }  // Domain is now implemented
+        public ContextualInputSource ContextSource { get; set; } // Contextual Input Source
 
         // Navigation properties or additional relationships can be added here
     }
