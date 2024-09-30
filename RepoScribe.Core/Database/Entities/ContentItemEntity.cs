@@ -8,7 +8,7 @@ namespace RepoScribe.Core.Database.Entities
     public abstract class ContentItemEntity
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Path { get; set; }
         public string Owner { get; set; }
         public DateTime LastModified { get; set; }
