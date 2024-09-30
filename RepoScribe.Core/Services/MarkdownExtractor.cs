@@ -1,12 +1,11 @@
-﻿using RepoScribe.Core.Abstractions;
-using RepoScribe.Core.Utilities;
+﻿using RepoScribe.Core.Utilities;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using System;
 
-
-/// DEPERECATED CODE
 namespace RepoScribe.Core.Services
 {
+    [Obsolete("MarkdownExtractor is deprecated.")]
     public class MarkdownExtractor
     {
         private readonly string _inputDirectory;
