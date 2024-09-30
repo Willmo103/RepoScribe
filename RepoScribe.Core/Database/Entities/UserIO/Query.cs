@@ -26,8 +26,6 @@ namespace RepoScribe.Core.Database.Entities.UserIO
         List<Query> Responses { get; set; } = new List<Query>();
         Boolean IsBestResponse { get; set; } = false;
         String Provider { get; set; } = "";
-        
-        [ForeignKey("ConversationId")];
         Conversation Conversation { get; set; }
     }
 }
