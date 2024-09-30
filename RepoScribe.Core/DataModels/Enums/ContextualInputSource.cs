@@ -2,11 +2,17 @@
 {
     public enum ContextualInputSource
     {
+        // Starters
         HostFiles,
         GitHub,
         BrowsingHistory,
         Email,
         LocalFiles,
-        SMS
+        SMS,
+        //Clipboard, TODO : Implement this
+        //ScreenCapture,
+        //VoiceMemo,
+        //PhotoInput,
+        //ResearchProject,
     }
 }
