@@ -1,7 +1,10 @@
-﻿using RepoScribe.Core.DataModels.Markdown;
+﻿using RepoScribe.Core.Abstractions;
 using RepoScribe.Core.Utilities;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
+
+/// DEPERECATED CODE
 namespace RepoScribe.Core.Services
 {
     public class MarkdownExtractor
@@ -35,7 +38,7 @@ namespace RepoScribe.Core.Services
                         Content = codeContent
                     };
 
-                    yield return Newtonsoft.Json.JsonConvert.SerializeObject(codeObject);
+                    yield return JsonConvert.SerializeObject(codeObject);
                 }
             }
         }

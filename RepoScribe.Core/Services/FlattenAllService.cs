@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
-using RepoScribe.Core.DataModels.Markdown;
+using RepoScribe.Core.Abstractions;
+using RepoScribe.Core.Helpers;
 using RepoScribe.Core.Utilities;
 using Serilog;
 
@@ -9,11 +10,15 @@ namespace RepoScribe.Core.Services
     {
         private readonly string _codeFlattenerPath;
         private readonly string _outputDirectory;
+        private readonly InputProcessor _inputProcessor;
+        private readonly IRenderer _renderer;
 
-        public FlattenAllService(string codeFlattenerPath, string outputDirectory)
+        public FlattenAllService(string codeFlattenerPath, string outputDirectory, InputProcessor inputProcessor, IRenderer renderer)
         {
             _codeFlattenerPath = codeFlattenerPath;
             _outputDirectory = outputDirectory;
+            _inputProcessor = inputProcessor;
+            _renderer = renderer;
         }
 
         public async Task FlattenAllAsync()

@@ -4,7 +4,7 @@
     {
         public abstract string ToMarkdown();
 
-        public override string ToString() // This will be refactored into the base base class for content and override RenderAs() in the future
+        public override string ToString()
         {
             return ToMarkdown();
         }
@@ -12,6 +12,7 @@
         public abstract string ApplyTemplate(string template);
     }
 }
+
 /*
  input_type 
 imput_context_source

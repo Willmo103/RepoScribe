@@ -11,14 +11,14 @@
 //        public SetupManager()
 //        {
 //            // Check if the user has a program data directory in their home directory '~/.reposcribe'
-//            var homeDirDataPath = "%USERPROFILE%\\.reposcribe\\appsettings.json";
+//            var homeDirDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".reposcribe", "appsettings.json");
 
 //            // Check if the user has a application installation directory 'C:\Program Files\RepoScribe'
 //            // Check if the user has a CLI Executable directory in their PATH
 //            // If not, create them all
 
 //            // Check if the user has a configuration file in their home directory, use that
-//            var homeDirConfigPath = "%USERPROFILE%\\Documents\\RepoScribe\\appsettings.json";
+//            var homeDirConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "RepoScribe", "appsettings.json");
 //        }
 //    }
 
@@ -48,16 +48,15 @@
 //        public PathData AppDirDataPath { get; set; }
 //        public PathData CliDirDataPath { get; set; }
 
-
 //        internal string GetPath(PathDataPair pathDataPair)
 //        {
 //            // Check if the user has a program data directory in their home directory '~/.reposcribe'
-//            var homeDirDataPath = "%USERPROFILE%\\.reposcribe\\appsettings.json";
+//            var homeDirDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".reposcribe", "appsettings.json");
 //            // Check if the user has a application installation directory 'C:\Program Files\RepoScribe'
 //            // Check if the user has a CLI Executable directory in their PATH
 //            // If not, create them all
 //            // Check if the user has a configuration file in their home directory, use that
-//            var homeDirConfigPath = "%USERPROFILE%\\Documents\\RepoScribe\\appsettings.json";
+//            var homeDirConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "RepoScribe", "appsettings.json");
 //            return homeDirDataPath;
 //        }
 //    }
