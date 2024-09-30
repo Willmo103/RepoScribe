@@ -2,11 +2,9 @@
 using RepoScribe.Core.DataModels.Markdown;
 using RepoScribe.Core.Helpers;
 using RepoScribe.Core.Utilities;
-using RepoScribe.Core.Services;
 using Serilog;
 using RepoScribe.Core.DataModels;
 using RepoScribe.Core.FileHandlers;
-using System.Threading;
 using System.CommandLine.Invocation;
 
 namespace RepoScribe.CLI.Commands

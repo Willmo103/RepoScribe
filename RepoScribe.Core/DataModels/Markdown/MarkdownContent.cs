@@ -4,7 +4,7 @@
     {
         public abstract string ToMarkdown();
 
-        public override string ToString()
+        public override string ToString() // This will be refactored into the base base class for content and override RenderAs() in the future
         {
             return ToMarkdown();
         }
@@ -21,7 +21,7 @@ public Enum ContextualInputSources {
     Browsing History,
     Email,
     Local Files,
-
+    SMS
 }
 
 public enum Domains {
