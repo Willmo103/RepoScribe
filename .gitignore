@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/FlattenCodeBase-3.0.0.md
+/automation-scripts.md
+/RepoScribe.CLI/.md
+/RepoScribe.CLI/_.ps1
+/CORE.md
