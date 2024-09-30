@@ -2,7 +2,9 @@
 {
     public class ImageContentItem : ContentItem
     {
-        // Additional properties specific to images can be added here
         public string ImageMetadata { get; set; }
+        
+        // Store image data as byte array
+        public byte[] ImageData { get; set; } 
     }
 }
