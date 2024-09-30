@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RepoScribe.Core.ContentItems;
 
 namespace RepoScribe.Core.Abstractions
 {
-    internal class ITemplateRenderer
+    public interface ITemplateRenderer : IRenderer
     {
+        string Render(ContentItem contentItem, string template);
     }
 }
