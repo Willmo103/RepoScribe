@@ -8,13 +8,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoScribe.CLI", "RepoScribe.CLI\RepoScribe.CLI.csproj", "{36265F85-16DE-4DFA-A86D-6B8B9D6775E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoScribe.CLI", "RepoScribe.CLI\RepoScribe.CLI.csproj", "{36265F85-16DE-4DFA-A86D-6B8B9D6775E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoScribe.Core", "RepoScribe.Core\RepoScribe.Core.csproj", "{617D6CC2-777F-4D05-9B3F-E2533AAD00DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoScribe.Core", "RepoScribe.Core\RepoScribe.Core.csproj", "{617D6CC2-777F-4D05-9B3F-E2533AAD00DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoScribe", "RepoScribe\RepoScribe.csproj", "{9A4A41CB-C793-4D62-9E35-143ADA926C49}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoScribe.Tests", "RepoScribe.Tests\RepoScribe.Tests.csproj", "{8554F867-E795-445D-B5E7-7624BBA9457F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoScribe", "RepoScribe\RepoScribe.csproj", "{9A4A41CB-C793-4D62-9E35-143ADA926C49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,10 +32,6 @@ Global
 		{9A4A41CB-C793-4D62-9E35-143ADA926C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A4A41CB-C793-4D62-9E35-143ADA926C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A4A41CB-C793-4D62-9E35-143ADA926C49}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8554F867-E795-445D-B5E7-7624BBA9457F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8554F867-E795-445D-B5E7-7624BBA9457F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8554F867-E795-445D-B5E7-7624BBA9457F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8554F867-E795-445D-B5E7-7624BBA9457F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
