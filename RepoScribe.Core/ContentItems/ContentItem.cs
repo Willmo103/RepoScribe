@@ -24,5 +24,24 @@ namespace RepoScribe.Core.ContentItems
             // Default implementation or throw NotImplementedException
             throw new NotImplementedException();
         }
+
+        public virtual void Save()
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
+
+        // Rendering methods
+        public virtual string RenderAs(IRenderer renderer)
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
+
+        public virtual string GetSummary()
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
     }
 }

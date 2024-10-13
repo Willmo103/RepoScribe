@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Data.Sqlite;
 using RepoScribe.Core.Utilities;
 using Serilog;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Sqlite;
 
 namespace RepoScribe.Core.Services
 {
@@ -35,7 +37,10 @@ namespace RepoScribe.Core.Services
             }
         }
 
+        // Method to retun an Instance of the DbContext
 
+        
+        // Example method to test a connection
         public Boolean TestConnection()
         {
             if (_connectionString.Contains("Data Source"))
