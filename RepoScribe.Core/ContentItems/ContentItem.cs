@@ -1,20 +1,47 @@
 ﻿using RepoScribe.Core.Abstractions;
+using RepoScribe.Core.DataModels;
 using RepoScribe.Core.DataModels.Enums;
+using System;
+using System.Threading.Tasks;
 
 namespace RepoScribe.Core.ContentItems
 {
-    public abstract class ContentItem
+    public abstract class ContentItem : Metadata
     {
-        public int Id { get; set; } // Primary Key for ORM
-        public string Path { get; set; }
-        public string Owner { get; set; }
-        public DateTime LastModified { get; set; }
-        public double SizeMB { get; set; }
-        public string Language { get; set; }
-        public string Content { get; set; }
-        public Domain Domain { get; set; }  // Domain is now implemented
-        public ContextualInputSource ContextSource { get; set; } // Contextual Input Source
+        public Guid Id { get; set; } 
+        public Domain Domain { get; set; }
+        public ContextualInputSource ContextSource { get; set; }
 
-        // Navigation properties or additional relationships can be added here
+        // Ingestion and Saving methods
+        public virtual void Ingest()
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task SaveAsync()
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
+
+        public virtual void Save()
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
+
+        // Rendering methods
+        public virtual string RenderAs(IRenderer renderer)
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
+
+        public virtual string GetSummary()
+        {
+            // Default implementation or throw NotImplementedException
+            throw new NotImplementedException();
+        }
     }
 }

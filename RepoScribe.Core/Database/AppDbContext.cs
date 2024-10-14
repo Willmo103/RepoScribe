@@ -33,7 +33,7 @@ namespace RepoScribe.Core.Database
             // Configure LineContentEntity relationship
             modelBuilder.Entity<LineContentEntity>()
                 .HasOne(l => l.ContentItem)
-                .WithMany()
+                .WithMany(c => c.Lines)
                 .HasForeignKey(l => l.ContentItemEntityId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

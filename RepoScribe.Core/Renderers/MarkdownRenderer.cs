@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using RepoScribe.Core.Abstractions;
 using RepoScribe.Core.ContentItems;
+using RepoScribe.Core.DataModels.Markdown;
 
 namespace RepoScribe.Core.Renderers
 {
@@ -14,14 +16,17 @@ namespace RepoScribe.Core.Renderers
 
         public string Render(ContentItem contentItem, string template)
         {
+            if (contentItem == null)
+                throw new ArgumentNullException(nameof(contentItem));
+
             var markdown = new StringBuilder();
 
             if (contentItem is CodeContentItem codeContent)
             {
-                if (template != null)
+                var codeBlock = new CodeBlock(codeContent.Language, codeContent.Content);
+                if (!string.IsNullOrEmpty(template))
                 {
-                    // Apply template rendering
-                    markdown.AppendLine(string.Format(template, codeContent.Language, codeContent.Content));
+                    markdown.AppendLine(codeBlock.ApplyTemplate(template));
                 }
                 else
                 {
@@ -32,23 +37,25 @@ namespace RepoScribe.Core.Renderers
                             .AppendLine($"lastModified: {codeContent.LastModified}")
                             .AppendLine($"sizeMB: {codeContent.SizeMB}")
                             .AppendLine("---");
-                    markdown.AppendLine($"```{codeContent.Language}");
-                    markdown.AppendLine(codeContent.Content);
-                    markdown.AppendLine("```");
+                    markdown.AppendLine(codeBlock.ToMarkdown());
                 }
             }
             else if (contentItem is ImageContentItem imageContent)
             {
-                if (template != null)
-                {
-                    // TODO: Apply template rendering for images
-                }
-                else
-                {
-                    markdown.AppendLine($"![Image]({imageContent.Path})");
-                }
+                // TODO: Implement rendering for ImageContentItem
             }
-            // TODO: Handle other content types
+            else if (contentItem is PdfContentItem pdfContent)
+            {
+                // TODO: Implement rendering for PdfContentItem
+            }
+            else if (contentItem is RepositoryContentItem repoContent)
+            {
+                // TODO: Implement rendering for RepositoryContentItem
+            }
+            else
+            {
+                // Handle other content types or throw exception
+            }
 
             return markdown.ToString();
         }

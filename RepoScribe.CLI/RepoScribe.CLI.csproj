@@ -9,12 +9,16 @@
 		<ProjectReference Include="..\RepoScribe.Core\RepoScribe.Core.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
+		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.10" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Scripts\" />
+	  <Folder Include="Utilities\" />
 	</ItemGroup>
 </Project>

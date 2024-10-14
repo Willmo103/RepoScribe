@@ -4,6 +4,6 @@ namespace RepoScribe.Core.Database.Entities
 {
     public class CodeContentItemEntity : ContentItemEntity
     {
-        public ICollection<LineContentEntity> Lines { get; set; } = new List<LineContentEntity>();
+        // Lines property moved to base class
     }
 }
