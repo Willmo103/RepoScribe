@@ -112,7 +112,6 @@ namespace RepoScribe.Core.Services
             {
                 Thread.Sleep(1000);
 
-
             }
         }
     }
