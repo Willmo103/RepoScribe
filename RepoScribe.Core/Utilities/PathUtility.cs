@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace RepoScribe.Core.Utilities
+﻿namespace RepoScribe.Core.Utilities
 {
     public static class PathUtility
     {

@@ -1,5 +1,4 @@
 using RepoScribe.Core.DataModels;
-using Microsoft.Data.Sqlite;
 
 namespace RepoScribe.Core.FileHandlers
 {

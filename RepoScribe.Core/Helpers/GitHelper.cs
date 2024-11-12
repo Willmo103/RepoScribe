@@ -1,5 +1,4 @@
 using RepoScribe.Core.DataModels;
-using LibGit2Sharp;
 
 namespace RepoScribe.Core.Helpers
 {

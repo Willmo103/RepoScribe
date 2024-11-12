@@ -1,8 +1,4 @@
-using System.Reflection.PortableExecutable;
-using System.Text;
 using RepoScribe.Core.DataModels;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
 
 namespace RepoScribe.Core.FileHandlers
 {

@@ -1,13 +1,4 @@
-﻿using RepoScribe.Core.DataModels;
-using RepoScribe.Core.FileHandlers;
-using RepoScribe.Core.Helpers;
-using RepoScribe.Core.Utilities;
-using Serilog;
-using System;
-using System.CommandLine;
-using System.Text;
-
-namespace FlattenCodebase
+﻿namespace FlattenCodebase
 {
     class Program
     {

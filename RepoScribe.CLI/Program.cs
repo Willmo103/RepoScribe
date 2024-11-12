@@ -1,6 +1,16 @@
 ﻿using System.CommandLine;
 using RepoScribe.CLI.Commands;
-using Serilog;
+using LibGit2Sharp;
+using PdfSharp.Charting;
+using PdfSharp.Pdf.Content.Objects;
+using RepoScribe.Core.DataModels.Markdown;
+using RepoScribe.Core.DataModels;
+using RepoScribe.Core.FileHandlers;
+using RepoScribe.Core.Helpers;
+using RepoScribe.Core.Services;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace RepoScribe.CLI
 {

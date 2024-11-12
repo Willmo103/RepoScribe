@@ -1,5 +1,3 @@
-using Serilog;
-
 namespace RepoScribe.Core.Utilities
 {
     public static class Logger

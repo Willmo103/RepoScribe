@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-
-namespace RepoScribe.Core.Utilities
+﻿namespace RepoScribe.Core.Utilities
 {
     public static class HashUtility
     {

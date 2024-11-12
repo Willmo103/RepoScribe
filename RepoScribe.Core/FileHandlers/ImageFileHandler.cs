@@ -1,5 +1,4 @@
 using RepoScribe.Core.DataModels;
-using SixLabors.ImageSharp;
 
 namespace RepoScribe.Core.FileHandlers
 {

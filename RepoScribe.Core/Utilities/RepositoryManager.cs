@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using Newtonsoft.Json;
-
-namespace RepoScribe.Core.Utilities
+﻿namespace RepoScribe.Core.Utilities
 {
     public class RepositoryManager
     {

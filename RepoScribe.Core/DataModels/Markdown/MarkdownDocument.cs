@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace RepoScribe.Core.DataModels.Markdown
+﻿namespace RepoScribe.Core.DataModels.Markdown
 {
     public class MarkdownDocument
     {

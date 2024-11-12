@@ -2,7 +2,6 @@
 using RepoScribe.Core.Abstractions;
 using RepoScribe.Core.Helpers;
 using RepoScribe.Core.Utilities;
-using Serilog;
 
 namespace RepoScribe.Core.Services
 {
